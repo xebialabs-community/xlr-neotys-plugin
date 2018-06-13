@@ -1,4 +1,4 @@
-Here is a brief explanation of the features covered by the plugin :
+## Here is a brief explanation of the features covered by the plugin :
 
 Tasks: The plugin has 3 different tasks :
 Launch test
@@ -6,7 +6,7 @@ Launch test
 
             This task supports all the different way to store a Neoload project :
 
-Locally
+### Locally
 On a Neotys Team Server
 On a Source control ( Git or svn)
             This task is also compatible with the usage of our new platform : NeoLoad Web.
@@ -18,7 +18,7 @@ On a Source control ( Git or svn)
             The launch test task is storing on the ask 3 reports : report.xml ( required for the custom tile), junit.xml, report.pdf
 
         
-Update variable
+### Update variable
             The update variable allows the user to rewrite the runtime context of a test.
 
             The main idea behind this task is to update the project used by "launch test task" by updating the reference of the System under test.
@@ -33,7 +33,7 @@ Cloud session
     Update variable and cloud session are tasks that are optional but will change the behavior of the launch test task.
 
 
-Custom tile :
+## Custom tile :
 The plugin comes with 2 custom tiles :     
 NeoLoad trending graph : The user can add to the release dashboard a tile that will trend all the test launched ( having a specific name) on following kpis :
 Average response time

@@ -11,64 +11,64 @@
 
     <!-- NEOLOAD CONFIGURATIONS -->
     <type type="NeoLoad.Controller" label="NeoLoad Controller" extends="xlrelease.Configuration">
-        <property name="NL_Host" default="hostname" required="true" label="NeoLoad Host" description="Host where NeoLoad is installed" category="input" />
-        <property name="NL_Controller_Path" default="/opt/NeoLoad/" required="true" label="NeoLoad Installation path" description="Path to the NeoLoad installation" category="input" />
-        <property name="username" description="The username to connect to the NeoLoad Controller" category="input" label="Login" />
-        <property name="password" description="The password to connect to the NeoLoad Controller" category="input" password="true" label="password"/>
-        <property name="OS" label="System Operation" required="true" default="Linux" description="OS the NL instance Linux (ssh), Windows, Mac OS" kind="enum">
-        <enum-values>
-            <value>Windows - Telnet</value>
-            <value>Windows - WinRM</value>
-            <value>Linux</value>
-            <value>Mac OS</value>
-        </enum-values>
+        <property name="OS" label="Operation System" required="true" default="Linux" description="Operation system where NeoLoad Controller is installed" category="Configuration" kind="enum">
+            <enum-values>
+                <value>Linux</value>
+                <value>Windows - Telnet</value>
+                <value>Windows - WinRM</value>
+                <value>Mac OS</value>
+            </enum-values>
         </property>
+        <property name="NL_Host" default="hostname" required="true" label="Hostname" description="Hostname or IP address where NeoLoad is installed" category="Configuration" />
+        <property name="NL_Controller_Path" default="/opt/NeoLoad6.5/" required="true" label="NeoLoad Installation Path" description="Path to the NeoLoad installation" category="Configuration" />
+        <property name="username" description="Username to connect to the NeoLoad Controller machine" category="Configuration" label="Username" />
+        <property name="password" description="Password to connect to the NeoLoad Controller machine" category="Configuration" password="true" label="Password"/>
     </type>
     <type type="NeoLoad.WEB" label="NeoLoad Web" extends="xlrelease.Configuration">
-        <property name="NL_WEB_URL" default="https://neoload-api.saas.neotys.com" required="false" label="NeoLoad WEB API url" description="Url of the NeoLoad Web API Interface" category="input" />
+        <property name="NL_WEB_URL" default="https://neoload-api.saas.neotys.com" required="false" label="NeoLoad Web Api Url" description="NeoLoad Web Api Url" category="Configuration" />
     </type>
     <type type="NeoLoad.TeamServer" label="NeoLoad Team Server" extends="xlrelease.Configuration">
-        <property name="TeamServerHost" label="Neotys Team Server URL" description="Neotys Team Server URL" category="Configuration"/>
-        <property name="username" label="Neotys Team Server User name" description="Neotys Team Server username" category="Configuration"/>
-        <property name="password" label="Neotys Team Server Password" description="Neotys Team Server password" password="true" category="Configuration"/>
-        <property name="licenceID" label="License Identifier" description="License identifier of your shared license" category="Configuration"/>
+        <property name="TeamServerHost" label="NTS Url" description="Neotys Team Server url" category="Configuration"/>
+        <property name="username" label="NTS Username" description="Neotys Team Server username" category="Configuration"/>
+        <property name="password" label="NTS Password" description="Neotys Team Server password" password="true" category="Configuration"/>
+        <property name="licenceID" label="License Identifier" description="Identifier of Neotys Team Server shared license" category="Configuration"/>
     </type>
     <type type="NeoLoad.Cloud" label="NeoLoad Cloud" extends="xlrelease.Configuration">
-        <property name="username" label="User name" description="Neotys CloudPlatform username" category="input"/>
-        <property name="password" label="Password" description="Neotys CloudPlatform password" category="input" password="true"/>
+        <property name="username" label="Username" description="Neotys Cloud Platform username" category="Configuration"/>
+        <property name="password" label="Password" description="Neotys Cloud Platform password" category="Configuration" password="true"/>
     </type>
     <type type="NeoLoad.Collaboration" label="NeoLoad Collaboration" extends="xlrelease.Configuration">
-        <property name="Url" category="input"  description="Url to the source control"/>
-        <property name="username" label="User name" description="Collaboration username" category="input"/>
-        <property name="password" label="Password" description="Collaboration hashed password" category="input" password="true"/>
+        <property name="Url" category="Configuration"  description="Url of the SVN source control"/>
+        <property name="username" label="Username" description="Collaboration username" category="Configuration"/>
+        <property name="password" label="Password" description="Collaboration password" category="Configuration" password="true"/>
     </type>
 
 
     <!-- NEOLOAD TASKS -->
-    <type type="NeoLoad.UpdateConstantVariables" extends="xlrelease.PythonScript" label="Update Constant Variable" description="Update Constant a NeoLoad variable">
-    <property name="iconLocation" default="neoload.png" hidden="true"/>
-    <property name="taskColor" hidden="true" default="##6CBF09" />
-        <property name="ConstantVariableName"   required="true" label="Name of the NeoLoad Variable"  category="input"/>
-        <property name="ConstantVariableValue"  required="true" label="Value of the NeoLoad Variable"  category="input"/>
+    <type type="NeoLoad.UpdateConstantVariables" extends="xlrelease.PythonScript" label="Update Constant Variable" description="Update a NeoLoad variable">
+        <property name="iconLocation" default="neoload.png" hidden="true"/>
+        <property name="taskColor" hidden="true" default="##6CBF09" />
+        <property name="ConstantVariableName" required="true" label="NeoLoad Variable Name"  category="input"/>
+        <property name="ConstantVariableValue" required="true" label="NeoLoad Variable Value"  category="input"/>
         <property name="NeoLoadVariable" hidden="true" default="-1" category="output" />
     </type>
     <type type="NeoLoad.LaunchTest" extends="xlrelease.PythonScript" label="Launch Test" description="Execute a NeoLoad test">
         <property name="iconLocation" default="neoload.png" hidden="true"/>
         <property name="taskColor" hidden="true" default="##6CBF09" />
         <property name="NeoLoadPath"  kind="ci" required="true" label="NeoLoad" referenced-type="NeoLoad.Controller" category="input"/>
-        <property name="NeoLoadWebAPI" kind="ci" required="false" label="NeoLoad Web API" referenced-type="NeoLoad.WEB" category="input"/>
-        <property name="NeoloadWebAPItoken" category="input" required="false" label="NeoLoad Web token" description="NeoLoad WEB API Token"/>
+        <property name="NeoLoadWebAPI" kind="ci" required="false" label="NeoLoad Web Api" referenced-type="NeoLoad.WEB" category="input"/>
+        <property name="NeoloadWebAPItoken" category="input" required="false" label="NeoLoad Web Token" description="NeoLoad Web Api token"/>
         <property name="NeoloadCloudPlatform" kind="ci" category="input" required="false" referenced-type="NeoLoad.Cloud" />
-        <property name="NeoLoadTeamServer"  kind="ci" required="false" category="input" label="NTS" referenced-type="NeoLoad.TeamServer" />
-        <property name="NumberOfUser"   required="false" category="input" label="NBSharedVu" description="Number of virtual user" />
-        <property name="NumberOfhour"   required="false" category="input" label="NBhour" description="Number of hour of the shared license" />
-        <property name="NeoLoadCollaboration"  kind="ci" required="false" category="input" label="Collaboration" referenced-type="NeoLoad.Collaboration" />
-        <property name="LocalNeoLoadProject" category="input" required="false" description="path to the local NeoLoad project" label="NeoLoad project Name"/>
-        <property name="CollaborationProjectPath" category="input" required="false"/>
-        <property name="CollabProjectName" category="input" required="false" label="Collaboration Project Name" description="Name of the shared project"/>
-        <property name="NeoloadScenario" category="input" required="true" label="NeoLoad scenario" description="Name of the NeoLoad test to launch"/>
+        <property name="NeoLoadTeamServer"  kind="ci" required="false" category="input" label="NeoLoad Team Server" referenced-type="NeoLoad.TeamServer" />
+        <property name="NumberOfUser" required="false" category="input" label="Virtual User Number" description="Number of virtual user" />
+        <property name="NumberOfhour" required="false" category="input" label="Duration" description="Number of hour of license lease" />
+        <property name="CollaborationProjectPath" label="NTS Repository Projects" description="Neotys Team Server repository projects" category="input" required="false"/>
+        <property name="CollabProjectName" category="input" required="false" label="NTS Project Name" description="Neotys Team Server project name"/>
+        <property name="NeoLoadCollaboration" kind="ci" required="false" category="input" label="NeoLoad Collaboration" description="NeoLoad Collaboration Project" referenced-type="NeoLoad.Collaboration" />
+        <property name="LocalNeoLoadProject" category="input" required="false" description="Path of the local NeoLoad project" label="Local NeoLoad Project Path"/>
+        <property name="NeoloadScenario" category="input" required="true" label="NeoLoad Scenario" description="Name of NeoLoad scenario to launch"/>
         <property name="NeoLoadTestDescription" category="input" required="false" label="Test Description" description="Description of the test"/>
-      </type>
+    </type>
     <type type="NeoLoad.LaunchNeoLoadCloudSession" extends="xlrelease.PythonScript" label="Generate Cloud Session" description="Generate NeoLoad Cloud Session">
         <property name="iconLocation" default="neoload.png" hidden="true"/>
         <property name="taskColor" hidden="true" default="##6CBF09" />
@@ -159,12 +159,12 @@
 
 
     <!-- NEOLOAD TREND TILES -->
-    <type type="NeoLoad.NeoLoadTrendingTile" label="NeoLoad Trending Tile" extends="xlrelease.Tile">
+    <type type="NeoLoad.NeoLoadTrendingTile" label="NeoLoad Trending Tile" description="Display Trending Graph for all NeoLoad launched tests" extends="xlrelease.Tile">
         <property name="uri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoloadtrending-summary-view.html"/>
         <property name="detailsUri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoload-details-view.html"/>
         <property name="title" description="Tile title" default="NeoLoad Trending Graph"/>
-        <property category="input" name="NeoLoadTaskTitle"  label="Name of the NeoLoad tasks" description="Name of the NeoLoad xl release tasks" required="true"/>
-        <property name="TrendingData" category="input" label="Type of Data" required="true" default="Response Time" description="Metrics that you would like to Trend" kind="enum">
+        <property category="input" name="NeoLoadTaskTitle"  label="Name of the NeoLoad tasks" description="NeoLoad tasks name of XL release" required="true"/>
+        <property name="TrendingData" category="input" label="Data type" required="true" default="Response Time" description="Metrics that you would like to Trend" kind="enum">
             <enum-values>
                 <value>Hit/s</value>
                 <value>Response Time</value>
@@ -176,13 +176,13 @@
         <property name="expirationTime" kind="integer" hidden="true" default="3" description="Expiration time for a tile cache (in seconds)."/>
         <property name="maxCacheEntries" kind="integer" hidden="true" default="1" description="Maximum cache entries."/>
     </type>
-    <type type="NeoLoad.NeoLoadCustomTrendingTile" label="NeoLoad Custom Trending Tile" extends="xlrelease.Tile">
+    <type type="NeoLoad.NeoLoadCustomTrendingTile" label="NeoLoad Custom Trending Tile" description="Display Custom Trending Graph for all NeoLoad launched tests" extends="xlrelease.Tile">
         <property name="uri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoloadcustomtrending-summary-view.html"/>
         <property name="detailsUri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoloadcustom-details-view.html"/>
-        <property name="title" description="Tile title" default="NeoLoad custom Trending Graph"/>
-        <property category="input" name="NeoLoadTaskTitle"  label="Name of the NeoLoad tasks" description="Name of the NeoLoad xl release tasks" required="true"/>
+        <property name="title" description="Tile title" default="NeoLoad Custom Trending Graph"/>
+        <property category="input" name="NeoLoadTaskTitle"  label="Name of the NeoLoad tasks" description="NeoLoad tasks name of XL release" required="true"/>
         <property category="input" name="NeoLoadKpiName"  label="Name of the metrics to trend" description="Name of the NeoLoad Kpi to trend" required="true"/>
-        <property name="reportXpathQuery" category="input" label="Type of Data" required="true" description="Xpath Query to extract the kpi" />
+        <property name="reportXpathQuery" category="input" label="XPath query" required="true" description="XPath query to extract the Kpi" />
         <property name="cacheEnabled" kind="boolean" hidden="true" default="false" description="True if tile data should be cached."/>
         <property name="userSpecificCache" kind="boolean" hidden="true" default="false" description="True if tile data should be cached per user."/>
         <property name="expirationTime" kind="integer" hidden="true" default="3" description="Expiration time for a tile cache (in seconds)."/>

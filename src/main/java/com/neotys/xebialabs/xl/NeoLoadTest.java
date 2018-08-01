@@ -1,33 +1,23 @@
 package com.neotys.xebialabs.xl;
 
 
-import com.xebialabs.deployit.plugin.api.reflect.Type;
-import com.xebialabs.deployit.plugin.api.validation.ValidationMessage;
-import com.xebialabs.overthere.*;
-import com.xebialabs.xltype.serialization.xstream.Converters;
-import org.apache.commons.io.IOUtils;
-import org.apache.tools.ant.taskdefs.condition.Os;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.security.GeneralSecurityException;
-import java.util.List;
-
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.neotys.nls.security.tools.PasswordEncoder;
 import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
-import com.xebialabs.deployit.plugin.api.udm.Configuration;
 import com.xebialabs.overthere.CmdLine;
+import com.xebialabs.overthere.ConnectionOptions;
 import com.xebialabs.overthere.OperatingSystemFamily;
+import com.xebialabs.overthere.Overthere;
 import com.xebialabs.overthere.OverthereConnection;
 import com.xebialabs.overthere.OverthereFile;
-
 import com.xebialabs.overthere.util.CapturingOverthereExecutionOutputHandler;
-import com.xebialabs.overthere.util.OverthereUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import scala.sys.process.processInternal;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,748 +25,611 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
 
+import static com.neotys.xebialabs.xl.NeoLoadTest.OperatingSystem.WINDOWS_RM;
+import static com.neotys.xebialabs.xl.NeoLoadTest.OperatingSystem.WINDOWS_TELNET;
 import static com.xebialabs.overthere.ConnectionOptions.ADDRESS;
 import static com.xebialabs.overthere.ConnectionOptions.OPERATING_SYSTEM;
 import static com.xebialabs.overthere.ConnectionOptions.PASSWORD;
 import static com.xebialabs.overthere.ConnectionOptions.USERNAME;
 import static com.xebialabs.overthere.OperatingSystemFamily.UNIX;
-import static com.xebialabs.overthere.ssh.SshConnectionBuilder.CONNECTION_TYPE;
 import static com.xebialabs.overthere.cifs.CifsConnectionType.TELNET;
-import static com.xebialabs.overthere.ssh.SshConnectionBuilder.SUDO_USERNAME;
-import static com.xebialabs.overthere.ssh.SshConnectionType.*;
-import static com.xebialabs.overthere.ConnectionOptions.OPERATING_SYSTEM;
+import static com.xebialabs.overthere.cifs.CifsConnectionType.WINRM_NATIVE;
+import static com.xebialabs.overthere.ssh.SshConnectionBuilder.CONNECTION_TYPE;
+import static com.xebialabs.overthere.ssh.SshConnectionType.SCP;
+import static com.xebialabs.overthere.ssh.SshConnectionType.SFTP;
 import static com.xebialabs.overthere.util.CapturingOverthereExecutionOutputHandler.capturingHandler;
-import  com.neotys.nls.security.tools.PasswordEncoder;
+
 /**
  * Created by hrexed on 04/12/17.
  */
-public class NeoLoadTest  {
+public class NeoLoadTest {
 
-    private static final String SCRIPT_NAME = "NeoLoad-Test";
-    private static final String LINUX="Linux";
-    private static final String WINDOWS="Windows";
-    private static final String MACOS="MacOs";
-    private static final String HOMEWIndows="%HOMEDRIVE%%HOMEPATH% ";
-    private static final String HomeUnix="~";
-    private static final String UNixScpHome="/home/";
-    private static final String MacScpHome="/Users/";
-    private  ConnectionOptions options;
-    private  String OS;
-    private  String NLInstallationPath;
-    private  String NLProjectPath;
-    private  String NLScenarioName;
-    private  String NLHost;
-    private  String NLUsername;
-    private  String NLPassword;
-    private  boolean NLIsCollab = false;
-    private  String NLCollabUrl;
-    private  String NLCollabUsername;
-    private  String NLCollabProjectPath;
-    private  String NLCollabPassword;
-    private  String NTSUrl;
-    private  String NTSUsername;
-    private  String NTSPassword;
-    private  String Nbhour;
-    private  String NbVU;
-    private  boolean NLIsNTS;
-    private  String NTSLicenseID;
-    private  CapturingOverthereExecutionOutputHandler stdout = capturingHandler();
-    private  CapturingOverthereExecutionOutputHandler stderr = capturingHandler();
-    private  String NLCollabProjectName;
-    private  String NLWEBURL;
-    private  String NLWEBAPIToken;
-    private String NLCloudUsername;
-    private String NLCloudPassword;
-    private boolean NLIsCloud;
-    private  boolean NlISNLWeb;
-    private  String NLTestDescription;
-    private final static   String SPACE=" ";
-    private String ReleaseName;
-    private String ReleaseId;
-    private String CloudYML=null;
-    private String Variables=null;
-    private boolean IsVariableUsed=false;
-    private boolean IsCloudUsed=false;
+    private static final String WINDOWS_TELNET_LABEL = "Windows - Telnet";
+    private static final String WINDOWS_RM_LABEL = "Windows - WinRM";
+    private static final String LINUX_LABEL = "Linux";
+    private static final String MAC_LABEL = "Mac OS";
+    private static final String UNIX_SCP_HOME = "/home/";
+    private static final String MAC_SCP_HOME = "/Users/";
+    private static final String UNIX_FILE_SEPARATOR = "/";
+    private static final String WINDOWS_FILE_SEPARATOR = "\\";
+    private OperatingSystem operatingSystem;
+    private String nlInstallationPath;
+    private String nlProjectPath;
+    private String nlScenarioName;
+    private String nlHost;
+    private String nlUsername;
+    private String nlPassword;
+    private boolean nlIsCollab;
+    private String nlCollabUrl;
+    private String nlCollabUsername;
+    private String nlCollabProjectPath;
+    private String nlCollabPassword;
+    private String ntsUrl;
+    private String ntsUsername;
+    private String ntsPassword;
+    private String nbHour;
+    private String nbVu;
+    private boolean nlIsNTS;
+    private String ntsLicenseID;
+    private String nlCollabProjectName;
+    private String nlWebUrl;
+    private String nlWebAPIToken;
+    private String nlCloudUserName;
+    private String nlCloudPassword;
+    private boolean nlIsCloud;
+    private boolean nlIsNlweb;
+    private String nlTestDescription;
+    private String releaseName;
+    private String releaseId;
+    private String cloudYml = null;
+    private String variables = null;
+    private boolean isVariableUsed ;
+    private boolean isCloudUsed ;
+    private OverthereConnection overthereConnection;
+    private String windowsUserHomeDirectory;
 
-    public NeoLoadTest(String Host, String Username,String password, String path, String Os,String NeoloadScenario ,String LocalNeoLoadProject,String  NeoLoadTestDescription ,String NeoloadWebAPItoken, String NLCollabProjectName, String CollaborationProjectPath,String nbVU ,String nbhour)
-    {
-
-        this.NLHost=Host;
-        this.NLUsername=Username;
-        this.NLPassword=password;
-        this.NLInstallationPath=path;
-        this.OS=Os;
-        this.NLScenarioName=NeoloadScenario;
-        this.NLProjectPath=LocalNeoLoadProject;
-        this.NLTestDescription=NeoLoadTestDescription;
-        this.NLWEBAPIToken=NeoloadWebAPItoken;
-        this.NLCollabProjectPath=CollaborationProjectPath;
-        this.NLCollabProjectName=NLCollabProjectName;
-        this.NLIsCollab=false;
-        this.NLIsNTS=false;
-        this.NlISNLWeb=false;
-        this.NLIsCloud=false;
-        this.Nbhour=nbhour;
-        this.NbVU=nbVU;
-        options = new ConnectionOptions();
-
-
-    }
-    public void SetReleaseInformation(String id, String name)
-    {
-        this.ReleaseId=id;
-        this.ReleaseName=name;
-    }
-    public void AddCloudYML(String yml)
-    {
-        if(yml !=null) {
-            this.CloudYML = yml;
-            IsCloudUsed = true;
-        }
-    }
-
-    public void SetVarialbe(String Variable)
-    {
-        if(Variable!=null) {
-            Variables = Variable;
-            IsVariableUsed = true;
-        }
-    }
-    public void SetNLCloud(String User,String pass)
-    {
-        this.NLCloudPassword=pass;
-        this.NLCloudUsername=User;
-        this.NLIsCloud=true;
-    }
-    public void SetWebAPI(String WebURL)
-    {
-        this.NLWEBURL=WebURL;
-        this.NlISNLWeb=true;
-    }
-    public void SetNTS(String url,String username, String password,String licenseID)
-    {
-        this.NLIsNTS=true;
-        this.NTSUrl=url;
-        this.NTSUsername=username;
-        this.NTSPassword=password;
-        this.NTSLicenseID=licenseID;
-    }
-    public void SetCollab(String url,String username,String password)
-    {
-        this.NLIsCollab=true;
-        this.NLCollabUrl=url;
-        this.NLCollabUsername=username;
-        this.NLCollabPassword=password;
-    }
-
-    private String GenerateLocalTempFolder()
-    {
-       if(this.OS.equalsIgnoreCase(WINDOWS))
-               return HOMEWIndows+"\\";
-        else
-            return HomeUnix+"/";
-
-    }
-
-
-    private String GenerateFileTempFolder()
-    {
-        if(this.OS.equalsIgnoreCase(WINDOWS))
-            return HOMEWIndows+"\\";
-        else {
-            if(this.OS.equalsIgnoreCase(LINUX)) {
-                if(this.NLUsername.equalsIgnoreCase("root"))
-                    return UNixScpHome + "/";
-                else
-                    return UNixScpHome + "/" + this.NLUsername + "/";
-            }
-            else {
-                if (this.OS.equalsIgnoreCase(MACOS))
-                    return MacScpHome + this.NLUsername + "/";
-                else
-                    return null;
-            }
-        }
+    public NeoLoadTest(String host, String username, String password, String path, String OperatingSystemLabel,
+                       String neoloadScenario, String localNeoLoadProject, String neoLoadTestDescription, String neoloadWebAPIToken,
+                       String nlcollabprojectname, String collaborationProjectPath, String nbVu, String nbHour) {
+        this.nlHost = host;
+        this.nlUsername = username;
+        this.nlPassword = password;
+        this.nlInstallationPath = path;
+        this.operatingSystem = OperatingSystem.fromName(OperatingSystemLabel);
+        this.nlScenarioName = neoloadScenario;
+        this.nlProjectPath = localNeoLoadProject;
+        this.nlTestDescription = neoLoadTestDescription;
+        this.nlWebAPIToken = neoloadWebAPIToken;
+        this.nlCollabProjectPath = collaborationProjectPath;
+        this.nlCollabProjectName = nlcollabprojectname;
+        this.nbHour = nbHour;
+        this.nbVu = nbVu;
     }
 
     public NeoLoadTest(ConfigurationItem remoteScript) {
-        options = new ConnectionOptions();
-
-        ConfigurationItem NeoLoad = remoteScript.getProperty("NeoLoadPath");
-        ConfigurationItem NTS = remoteScript.getProperty("NeoLoadTeamServer");
-        ConfigurationItem COllab = remoteScript.getProperty("NeoLoadCollaboration");
-        ConfigurationItem NLWeb=remoteScript.getProperty("NeoLoadWebAPI");
-        //----setting related to NeoLoad---------------
-        this.NLHost = NeoLoad.getProperty("NL_Host");
-        this.NLUsername= NeoLoad.getProperty("username");
-        this.NLPassword= NeoLoad.getProperty("password");
-        this.NLInstallationPath=NeoLoad.getProperty("NL_Controller_Path");
-        this.OS=NeoLoad.getProperty("OS");
+        ConfigurationItem neoLoad = remoteScript.getProperty("NeoLoadPath");
+        ConfigurationItem nts = remoteScript.getProperty("NeoLoadTeamServer");
+        ConfigurationItem collab = remoteScript.getProperty("NeoLoadCollaboration");
+        ConfigurationItem nlweb = remoteScript.getProperty("NeoLoadWebAPI");
+        //----setting related to neoLoad---------------
+        this.nlHost = neoLoad.getProperty("NL_Host");
+        this.nlUsername = neoLoad.getProperty("username");
+        this.nlPassword = neoLoad.getProperty("password");
+        this.nlInstallationPath = neoLoad.getProperty("NL_Controller_Path");
+        this.operatingSystem = neoLoad.getProperty("OS");
         //-----------------------------------------------
 
         //-----settings on the test execution--------------
-        this.NLScenarioName=remoteScript.getProperty("NeoloadScenario");
-        this.NLProjectPath=remoteScript.getProperty("LocalNeoLoadProject");
-        this.NLTestDescription=remoteScript.getProperty("NeoLoadTestDescription");
+        this.nlScenarioName = remoteScript.getProperty("NeoloadScenario");
+        this.nlProjectPath = remoteScript.getProperty("LocalNeoLoadProject");
+        this.nlTestDescription = remoteScript.getProperty("NeoLoadTestDescription");
         //--------------------------------------------------
 
         //-----NL Web settings-------------------------------------
-        if(NLWeb != null) {
-            this.NLWEBURL=NLWeb.getProperty("NL_WEB_URL");
-            this.NLWEBAPIToken=remoteScript.getProperty("NeoloadWebAPItoken");
-            this.NlISNLWeb=true;
-        }
-        else
-            this.NlISNLWeb=false;
+        if (nlweb != null) {
+            this.nlWebUrl = nlweb.getProperty("NL_WEB_URL");
+            this.nlWebAPIToken = remoteScript.getProperty("NeoloadWebAPItoken");
+            this.nlIsNlweb = true;
+        } else
+            this.nlIsNlweb = false;
         //---------------------------------------------------------
 
-        //-----getting the information related to NTS--------------
-        if(NTS != null)
-        {
-            this.NLIsNTS=true;
-            this.NTSUrl=NTS.getProperty("TeamServerHost");
-            this.NTSUsername=NTS.getProperty("username");
-            this.NTSPassword=NTS.getProperty("password");
-            this.NTSLicenseID=NTS.getProperty("licenceID");
+        //-----getting the information related to nts--------------
+        if (nts != null) {
+            this.nlIsNTS = true;
+            this.ntsUrl = nts.getProperty("TeamServerHost");
+            this.ntsUsername = nts.getProperty("username");
+            this.ntsPassword = nts.getProperty("password");
+            this.ntsLicenseID = nts.getProperty("licenceID");
 
-        }
-        else
-            this.NLIsNTS=false;
+        } else
+            this.nlIsNTS = false;
         //---------------------------------------------------------
 
         //-----getting the information related to Collab--------------
-        if(COllab!= null)
-        {
-            this.NLIsCollab=true;
-            this.NLCollabUrl=COllab.getProperty("Url");
-            this.NLCollabUsername=COllab.getProperty("username");
-            this.NLCollabPassword=COllab.getProperty("password");
-            this.NLCollabProjectName=remoteScript.getProperty("CollabProjectName");
-            this.NLCollabProjectPath=remoteScript.getProperty("CollaborationProjectPath");
-        }
-        else
-            this.NLIsCollab=false;
+        if (collab != null) {
+            this.nlIsCollab = true;
+            this.nlCollabUrl = collab.getProperty("Url");
+            this.nlCollabUsername = collab.getProperty("username");
+            this.nlCollabPassword = collab.getProperty("password");
+            this.nlCollabProjectName = remoteScript.getProperty("CollabProjectName");
+            this.nlCollabProjectPath = remoteScript.getProperty("CollaborationProjectPath");
+        } else
+            this.nlIsCollab = false;
         //---------------------------------------------------------
 
     }
 
-    private CmdLine GenerateCmdLine() throws GeneralSecurityException, UnsupportedEncodingException {
+    public void setReleaseInformation(String id, String name) {
+        this.releaseId = id;
+        this.releaseName = name;
+    }
 
-        String CMDline;
-        CmdLine cmd=new CmdLine();
+    public void addCloudYML(String yml) {
+        if (yml != null) {
+            this.cloudYml = yml;
+            isCloudUsed = true;
+        }
+    }
 
-        CMDline=this.NLInstallationPath+"/bin";
-        if(OS.equalsIgnoreCase(WINDOWS))
-            CMDline+="NeoLoadCmd.exe";
-        else
-            CMDline+="/NeoLoadCmd";
+    public void setVarialbe(String variable) {
+        if (variable != null) {
+            variables = variable;
+            isVariableUsed = true;
+        }
+    }
 
-        cmd.addRaw(CMDline);
+    public void setNLCloud(String user, String pass) {
+        this.nlCloudPassword = pass;
+        this.nlCloudUserName = user;
+        this.nlIsCloud = true;
+    }
 
-        if(NLIsCollab)
-        {
-            cmd.addRaw("-checkoutProject "+ "\""+this.NLCollabProjectName+"\"");
-            cmd.addRaw("-Collab "+ "\""+this.NLCollabUrl+this.NLCollabProjectPath+"\"");
-            cmd.addRaw("-CollabLogin "+"\""+this.NLCollabUsername+":"+PasswordEncoder.encode(this.NLCollabPassword)+"\"");
+    public void setWebAPI(String webURL) {
+        this.nlWebUrl = webURL;
+        this.nlIsNlweb = true;
+    }
 
+    public void setNTS(String url, String username, String password, String licenseID) {
+        this.nlIsNTS = true;
+        this.ntsUrl = url;
+        this.ntsUsername = username;
+        this.ntsPassword = password;
+        this.ntsLicenseID = licenseID;
+    }
+
+    public void setCollab(String url, String username, String password) {
+        this.nlIsCollab = true;
+        this.nlCollabUrl = url;
+        this.nlCollabUsername = username;
+        this.nlCollabPassword = password;
+    }
+
+    private String generateFileTempFolder() {
+        if (operatingSystem == null) {
+            return "";
+        }
+        switch (operatingSystem) {
+            case MAC:
+            return MAC_SCP_HOME + this.nlUsername + "/";
+            case LINUX:
+            if (this.nlUsername.equalsIgnoreCase("root")) {
+                return UNIX_SCP_HOME + "/";
+            } else {
+                return UNIX_SCP_HOME + "/" + this.nlUsername + "/";
+            }
+            case WINDOWS_TELNET:
+            case WINDOWS_RM:
+            return retrieveWindowsTempFolder();
+        }
+        return "";
+    }
+
+    private String retrieveWindowsTempFolder() {
+        if (windowsUserHomeDirectory == null) {
+            CapturingOverthereExecutionOutputHandler stdoutEcho = capturingHandler();
+            CapturingOverthereExecutionOutputHandler stderrEcho = capturingHandler();
+            overthereConnection.execute(stdoutEcho, stderrEcho, CmdLine.build("echo", "%HOMEDRIVE%%HOMEPATH%"));
+            windowsUserHomeDirectory = Iterables.getLast(Splitter.on("\n").split(stdoutEcho.getOutput()));
+        }
+        return windowsUserHomeDirectory;
+    }
+
+    private CmdLine generateCmdLine() throws GeneralSecurityException, UnsupportedEncodingException {
+
+        CmdLine cmd = new CmdLine();
+        String cmdLine = Paths.get(this.nlInstallationPath, "bin").toString();
+
+        if (operatingSystem == WINDOWS_TELNET || operatingSystem == WINDOWS_RM) {
+            cmdLine = Paths.get(cmdLine, "NeoLoadCmd.exe").toString();
+        } else {
+            cmdLine = Paths.get(cmdLine, "NeoLoadCmd").toString();
+        }
+        cmd.addRaw("\"" + replaceFileSeparator(cmdLine, operatingSystem) + "\"");
+
+        if (nlIsCollab) {
+            cmd.addRaw("-Collab " + "'" + this.nlCollabUrl + this.nlCollabProjectPath + "'");
+            cmd.addRaw("-CollabLogin " + "'" + this.nlCollabUsername + ":" + PasswordEncoder.encode(this.nlCollabPassword) + "'");
+            cmd.addRaw("-checkoutProject " + "'" + this.nlCollabProjectName + "'");
         }
 
-        if(NLIsNTS)
-        {
-            cmd.addRaw("-NTS "+"\""+this.NTSUrl+"\"" );
-            cmd.addRaw("-NTSCollabPath "+"\""+this.NLCollabProjectPath+"\"");
-            cmd.addRaw("-NTSLogin "+"\""+this.NTSUsername+":"+PasswordEncoder.encode(this.NTSPassword)+"\"");
-            cmd.addRaw("-checkoutProject "+"\""+ this.NLCollabProjectName+"\"");
+        if (nlIsNTS) {
+            cmd.addRaw("-NTS " + "'" + this.ntsUrl + "'");
+            cmd.addRaw("-NTSCollabPath " + "'" + this.nlCollabProjectPath + "'");
+            cmd.addRaw("-NTSLogin " + "'" + this.ntsUsername + ":" + PasswordEncoder.encode(this.ntsPassword) + "'");
+            cmd.addRaw("-checkoutProject " + "'" + this.nlCollabProjectName + "'");
             cmd.addRaw("-publishTestResult ");
-            cmd.addRaw("-leaseLicense "+"\""+this.NTSLicenseID+":"+NbVU+":"+Nbhour+"\"");
+            cmd.addRaw("-leaseLicense " + "'" + this.ntsLicenseID + ":" + nbVu + ":" + nbHour + "'");
         }
 
-        if(NlISNLWeb)
-        {
-            cmd.addRaw("-nlweb"+SPACE);
-            cmd.addRaw("-nlwebAPIURL "+"\""+this.NLWEBURL+"\"");
-            cmd.addRaw("-nlwebToken "+"\""+this.NLWEBAPIToken+"\"");
-        }
-        if(!NLIsCollab && !NLIsNTS) {
-            cmd.addRaw("-project " + "\"" + this.NLProjectPath + "\"");
-
+        if (nlIsNlweb) {
+            cmd.addRaw("-nlweb ");
+            cmd.addRaw("-nlwebAPIURL " + "'" + this.nlWebUrl + "'");
+            cmd.addRaw("-nlwebToken " + "'" + this.nlWebAPIToken + "'");
         }
 
-        if(NLIsCloud)
-        {
-            cmd.addRaw("-NCPLogin \""+this.NLCloudUsername+":"+PasswordEncoder.encode(this.NLCloudPassword)+"\"");
+        if (!nlIsCollab && !nlIsNTS) {
+            cmd.addRaw("-project " + "'" + this.nlProjectPath + "'");
         }
 
-        if(IsVariableUsed)
-        {
-            cmd.addRaw("-variables \""+this.Variables+"\"");
+        if (nlIsCloud) {
+            cmd.addRaw("-NCPLogin '" + this.nlCloudUserName + ":" + PasswordEncoder.encode(this.nlCloudPassword) + "'");
         }
 
-        if(IsCloudUsed)
-        {
-            //cmd.addRaw("-loadGenerators \""+GenerateLocalTempFolder()+"tmp.yaml\"");
-            cmd.addRaw("-loadGenerators \""+GenerateFileTempFolder()+"tmp.yaml\"");
+        if (isVariableUsed) {
+            cmd.addRaw("-variables '" + this.variables + "'");
         }
 
-        cmd.addRaw("-SLAJUnitMapping \"pass\"");
-        cmd.addRaw("-SLAJUnitResults \""+GenerateFileTempFolder()+"junit.xml\"");
+        final String fileTempFolder = generateFileTempFolder();
+        if (isCloudUsed) {
+            cmd.addRaw("-loadGenerators '" + replaceFileSeparator(Paths.get(fileTempFolder, "tmp.yaml'").toString(), operatingSystem));
+        }
 
-        if(this.ReleaseName!=null)
-            cmd.addRaw("-description \""+this.NLTestDescription+"_"+this.ReleaseName+"_"+this.ReleaseId+"\"");
-        else
-            cmd.addRaw("-description \""+this.NLTestDescription+"\"");
+        cmd.addRaw("-SLAJUnitMapping 'pass'");
+        cmd.addRaw("-SLAJUnitResults '" + replaceFileSeparator(Paths.get(fileTempFolder, "junit.xml'").toString(), operatingSystem));
 
-        cmd.addRaw("-report \""+GenerateFileTempFolder()+"report.xml,"+GenerateFileTempFolder() +"report.pdf\"");
-        cmd.addRaw("-launch "+"\""+this.NLScenarioName+"\"");
+        if (this.releaseName != null) {
+            cmd.addRaw("-description '" + this.nlTestDescription + "_" + this.releaseName + "_" + this.releaseId + "'");
+        } else {
+            cmd.addRaw("-description '" + this.nlTestDescription + "'");
+        }
+
+        cmd.addRaw("-report '" + replaceFileSeparator(Paths.get(fileTempFolder, "report.xml").toString(), operatingSystem)
+                + "," + replaceFileSeparator(Paths.get(fileTempFolder, "report.pdf").toString(), operatingSystem) + "'");
+        cmd.addRaw("-launch " + "'" + this.nlScenarioName + "'");
         cmd.addRaw("-noGUI");
-
-
-
-
-
-
 
         return cmd;
     }
 
-    private byte[] getFilebyteArray(OverthereFile file) throws IOException {
-        byte[] bytes;
-
-        if(file.exists()) {
-            InputStream i= file.getInputStream();
-            return IOUtils.toByteArray(i);
+    private String replaceFileSeparator(final String filePath, final OperatingSystem operatingSystem) {
+        switch (operatingSystem) {
+            case LINUX:
+            case MAC:
+                return filePath.replaceAll("\\\\", UNIX_FILE_SEPARATOR);
+            case WINDOWS_TELNET:
+            case WINDOWS_RM:
+                return filePath.replaceAll("/", WINDOWS_FILE_SEPARATOR);
         }
-        else return null;
-
+        throw new IllegalArgumentException("Can not support this operation system");
     }
-    private void CopyFile( OverthereFile file) throws IOException
-    {
-        if(file.exists()) {
-            InputStream is = file.getInputStream();
-            OutputStream outputStream = new FileOutputStream(new File(file.getName()));
 
-            int read = 0;
-            byte[] bytes = new byte[1024];
-
-            while ((read = is.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
+    private byte[] getFileByteArray(OverthereFile file, CmdResponse response) {
+        byte[] bytes = null;
+        if (file.exists()) {
+            try (InputStream i = file.getInputStream()){
+                bytes = IOUtils.toByteArray(i);
+            } catch (IOException e) {
+                response.addToErr("Can not read overthereFile: " + file.getPath()+ "\n");
             }
         }
+        return bytes;
     }
-    private OverthereConnection GetConnection()
-    {
 
-        OverthereConnection connection=null;
-        options.set(ADDRESS, this.NLHost);
-        options.set(USERNAME, this.NLUsername);
-        options.set(PASSWORD, this.NLPassword);
+    private OverthereConnection getConnection() {
+        if (overthereConnection == null) {
+            ConnectionOptions options = new ConnectionOptions();
+            options.set(ADDRESS, this.nlHost);
+            options.set(USERNAME, this.nlUsername);
+            options.set(PASSWORD, this.nlPassword);
 
-
-        if (this.OS.equals(LINUX))
-        {
-
-            options.set(OPERATING_SYSTEM,UNIX);
-            options.set(CONNECTION_TYPE,SCP);
-            connection = Overthere.getConnection("ssh", options);
-
-        } else if (this.OS.equals(WINDOWS))
-        {
-            options.set(OPERATING_SYSTEM, WINDOWS);
-            options.set(CONNECTION_TYPE, TELNET);
-            connection = Overthere.getConnection("cifs", options);
-        } else if (this.OS.equals(MACOS))
-        {
-            options.set(OPERATING_SYSTEM,UNIX);
-            options.set(CONNECTION_TYPE,SFTP);
-            connection = Overthere.getConnection("ssh", options);
-        }
-        connection.setWorkingDirectory(connection.getFile(GenerateFileTempFolder()));
-        return connection;
-    }
-    public CmdResponse LaunchProcess() {
-        int rc = 0;
-        //CapturingOverthereExecutionOutputHandler stdout = capturingHandler();
-        //CapturingOverthereExecutionOutputHandler stderr = capturingHandler();
-        String cmd;
-        OverthereConnection connect;
-        CmdLine script;
-        OverthereProcess process;
-        int exitCode=0;
-        String OUTPUT="";
-        String ERR="";
-        try {
-
-            connect=GetConnection();
-
-            if(connect!=null)
-            {
-                script=GenerateCmdLine();
-               // script=CmdLine.build(cmd);
-            //    rc = connect.execute(stdout, stderr, scr
-                 process = connect.startProcess(script);
-
-
-                    BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getStdout()));
-                    try {
-                        String line;
-                        while((line = stdout.readLine()) != null) {
-                            OUTPUT+=line;
-                        }
-                    } finally {
-                        stdout.close();
-                    }
-                    exitCode = process.waitFor();
-
-
-                BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getStderr()));
-                try {
-                    String line;
-                    while((line = stderr.readLine()) != null) {
-                        ERR+=line;
-                        System.out.println(OUTPUT);
-                    }
-                } finally {
-                    stderr.close();
-                }
-
-
-
-                connect.close();
+            switch (operatingSystem) {
+                case MAC:
+                    options.set(OPERATING_SYSTEM, UNIX);
+                    options.set(CONNECTION_TYPE, SFTP);
+                    overthereConnection = Overthere.getConnection("ssh", options);
+                    break;
+                case LINUX:
+                    options.set(OPERATING_SYSTEM, UNIX);
+                    options.set(CONNECTION_TYPE, SCP);
+                    overthereConnection = Overthere.getConnection("ssh", options);
+                    break;
+                case WINDOWS_TELNET:
+                    options.set(OPERATING_SYSTEM, OperatingSystemFamily.WINDOWS);
+                    options.set(CONNECTION_TYPE, TELNET);
+                    overthereConnection = Overthere.getConnection("cifs", options);
+                    break;
+                case WINDOWS_RM:
+                    options.set(OPERATING_SYSTEM, OperatingSystemFamily.WINDOWS);
+                    options.set(CONNECTION_TYPE, WINRM_NATIVE);
+                    options.set("pathShareMappings", ImmutableMap.of());
+                    overthereConnection = Overthere.getConnection("cifs", options);
+                    break;
             }
 
-
-        } catch (Exception e) {
-            StringWriter stacktrace = new StringWriter();
-            e.printStackTrace(new PrintWriter(stacktrace, true));
-            stderr.handleLine(stacktrace.toString());
-            rc = 1;
+            overthereConnection.setWorkingDirectory(overthereConnection.getFile(generateFileTempFolder()));
         }
-
-
-        return new CmdResponse(exitCode,OUTPUT,ERR);
+        return overthereConnection;
     }
 
-    private StringBuilder CreateRemoteFile(OverthereConnection connection ,String Content) throws IOException {
-            StringBuilder result=new StringBuilder();
+    private StringBuilder createRemoteFile(String content) throws IOException {
+        StringBuilder result = new StringBuilder();
 
-            OverthereFile motd = connection.getFile(GenerateFileTempFolder()+ "tmp.yaml");
-            OutputStream w = motd.getOutputStream();
-            try {
-                result.append(Content);
-                w.write(Content.getBytes());
-            } finally {
-                w.close();
-                return result;
-            }
-
-    }
-
-    public CmdResponse execute() {
-        int rc = 0;
-        CapturingOverthereExecutionOutputHandler stdout = capturingHandler();
-        CapturingOverthereExecutionOutputHandler stderr = capturingHandler();
-        String cmd;
-        OverthereConnection connect=null;
-        CmdLine script;
-        OverthereFile junit;
-        OverthereFile report;
-        OverthereProcess process;
-        CmdResponse response = null;
-        StringBuilder log=null;
-        StringBuilder comment=new StringBuilder();
-        try {
-
-            comment.append("Connection to remote Controller\n");
-            connect=GetConnection();
-
-            if(connect!=null) {
-                comment.append("Connection Done.....\n");
-
-                script = GenerateCmdLine();
-
-                //script=CmdLine.build(cmd);
-                OverthereFile f = connect.getWorkingDirectory();
-
-                if(CloudYML != null || CloudYML!="-1")
-                {
-                    comment.append("Setting Cloud Session to the controller.....\n");
-                    log=CreateRemoteFile(connect,CloudYML);
-                }
-
-                comment.append("Launching test.....\n");
-                rc = connect.execute(stdout, stderr, script);
-                comment.append("Test finished.....\n");
-
-                junit = connect.getFile(GenerateFileTempFolder() + "report.dtd");
-                CopyFile(junit);
-
-
-                response = new CmdResponse(rc, stdout.getOutput(), stderr.getOutput());
-                response.setReportdtdbytes(getFilebyteArray(junit));
-                junit = connect.getFile(GenerateFileTempFolder() + "report.xml");
-
-                if(log!=null)
-                    response.addToOut(log);
-
-                if (junit.exists())
-                {
-                    log = Getdata(junit.getInputStream(), response);
-                    response.setReportXMLbytes(getFilebyteArray(junit));
-                    junit.delete();
-
-                    if( log != null)
-                        response.addToOut(log);
-                }
-
-                junit = connect.getFile(GenerateFileTempFolder() + "report.pdf");
-                if (junit.exists())
-                {
-                    response.setPDFbytes(getFilebyteArray(junit));
-                    junit.delete();
-
-                }
-
-
-                junit = connect.getFile(GenerateFileTempFolder() + "junit.xml");
-                if (junit.exists())
-                {
-                    GetJunitData(junit.getInputStream(), response);
-                    response.setJunitxmlbytes(getFilebyteArray(junit));
-                    response.rc=1;
-                    junit.delete();
-                }
-                else
-                {
-                    response.addToErr("No Junit.xml found\n");
-                }
-
-
-                if(IsCloudUsed)
-                {
-                    junit = connect.getFile(GenerateFileTempFolder()+ "tmp.yaml");
-                    if (junit.exists()) {
-                         junit.delete();
-                    }
-                }
-            }
-
-            response.SetCommenrt(comment);
-
-        } catch (Exception e) {
-            if(response==null)
-            {
-                response=new CmdResponse();
-            }
-            StringWriter stacktrace = new StringWriter();
-            e.printStackTrace(new PrintWriter(stacktrace, true));
-            stderr.handleLine(stacktrace.toString());
-            rc = 1;
-            response.addToErr(stacktrace.toString());
-        }
-        finally {
-            if(connect!=null)
-                connect.close();
-
-            return response;
-        }
-
-        
-               
-           
-       
-
-    }
-
-    public StringBuilder Getdata(InputStream input, CmdResponse res)
-    {
-        StringBuilder output= new StringBuilder();
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        String hit;
-        String responsetime;
-        String error;
-        try {
-            // use the factory to create a documentbuilder
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc=builder.parse(input);
-            hit=GetData(doc,"avg_hits/s",output);
-            responsetime=GetData(doc,"avg_reqresponsetime",output);
-            error=GetData(doc,"total_errors",output);
-
-            res.addstat(responsetime,error,hit);
-
-            
-        }
-     catch (Exception ex) {
-            output.append(ex.getMessage());
-       // ex.printStackTrace();
-    }
-    finally{
-        return output;
-    }
-    }
-    public StringBuilder GetJunitData(InputStream input, CmdResponse res)
-    {
-        StringBuilder output= new StringBuilder();
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        int total;
-        int failure;
-        int success;
-        StringBuilder out=new StringBuilder();
-        StringBuilder error=new StringBuilder();
-        StringBuilder comment=new StringBuilder();
-        try {
-            // use the factory to create a documentbuilder
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc=builder.parse(input);
-            total=GetStats(doc,"/resource/testsuite/testcase");
-            success=GetStats(doc,"/resource/testsuite/testcase/sucess");
-            failure=GetStats(doc,"/resource/testsuite/testcase/failure");
-            out.append("Results :\n");
-            out.append("\t"+success + " SLAS were sucessful out of "+ total);
-
-            comment.append("Results :\n");
-            comment.append("\t"+success + " SLAS were sucessful out of "+ total);
-
-            if(failure>0) {
-                error.append(failure+" SlA were in error out of "+total+"\n");
-                comment.append(failure+" SlA were in error out of "+total+"\n");
-                GetError(doc, error,comment);
-                res.addToErr(error);
-            }
-
-            res.addToOut(output);
-
-        }
-        catch (Exception ex) {
-            res.addToErr(ex.getStackTrace().toString());
-            // ex.printStackTrace();
-        }
-        finally {
-            res.addToOut(out);
-            res.addToOut(error);
-            return comment;
-        }
-    }
-    public int GetStats(Document doc,String Query) throws XPathExpressionException
-    {
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        NodeList nodes = (NodeList)xPath.evaluate(Query, doc.getDocumentElement(), XPathConstants.NODESET);
-        return nodes.getLength();
-    }
-
-    public void GetError(Document doc, StringBuilder output, StringBuilder comment) throws XPathExpressionException {
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        NodeList nodes = (NodeList)xPath.evaluate("/resource/testsuite/testcase/failure", doc.getDocumentElement(), XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                Node e = nodes.item(i);
-                 output.append("Failure n° "+ (i+1)+"\n");
-                 output.append("\t"+e.getFirstChild().getNodeValue()+"\n");
-                 comment.append("Failure n° "+ (i+1)+"\n");
-                 comment.append("\t"+e.getFirstChild().getNodeValue()+"\n");
-
-            }
-
-    }
-
-
-    public String GetData(Document doc,String key, StringBuilder output) throws XPathExpressionException {
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String result = null;
-        NodeList nodes = (NodeList)xPath.evaluate("/report/summary/statistics/statistic[@name='"+key+"']", doc.getDocumentElement(), XPathConstants.NODESET);
-        for (int i = 0; i < nodes.getLength(); ++i) {
-            Element e = (Element) nodes.item(i);
-            result= e.getAttribute("value");
-
+        OverthereFile overthereFile = overthereConnection.getFile(generateFileTempFolder() + "tmp.yaml");
+        try (OutputStream w = overthereFile.getOutputStream()) {
+            result.append(content);
+            w.write(content.getBytes());
         }
         return result;
     }
 
+    public CmdResponse execute() {
+        CapturingOverthereExecutionOutputHandler stdout = capturingHandler();
+        CapturingOverthereExecutionOutputHandler stderr = capturingHandler();
+        CmdResponse response = null;
+        StringBuilder log = null;
+        StringBuilder comment = new StringBuilder();
+        try {
+
+            comment.append("Connection to remote Controller\n");
+            overthereConnection = getConnection();
+
+            if (overthereConnection != null) {
+                comment.append("Connection Done.....\n");
+
+                CmdLine script = generateCmdLine();
+
+                if (cloudYml != null) {
+                    comment.append("Setting Cloud Session to the controller.....\n");
+                    log = createRemoteFile(cloudYml);
+                }
+
+                comment.append("Launching test.....\n").append(script);
+
+                int rc = overthereConnection.execute(stdout, stderr, script);
+                comment.append("Test finished.....\n");
+
+                response = new CmdResponse(rc, stdout.getOutput(), stderr.getOutput());
+
+                if (log != null) {
+                    response.addToOut(log);
+                }
+
+                final String tempFolder = generateFileTempFolder();
+
+                OverthereFile reportDTDFile = overthereConnection.getFile(replaceFileSeparator(Paths.get(tempFolder, "report.dtd").toString(), operatingSystem));
+                if (reportDTDFile != null && reportDTDFile.exists()) {
+                    response.setReportDTDBytes(getFileByteArray(reportDTDFile, response));
+                    reportDTDFile.delete();
+                } else {
+                    response.addToErr("Can not find report file: report.dtd.\n");
+                }
+
+                OverthereFile reportXMLFile = overthereConnection.getFile(replaceFileSeparator(Paths.get(tempFolder, "report.xml").toString(), operatingSystem));
+                if (reportXMLFile != null && reportXMLFile.exists()) {
+                    response.setReportXMLBytes(getFileByteArray(reportXMLFile, response));
+                    reportXMLFile.delete();
+                } else {
+                    response.addToErr("Can not find report file: report.xml.\n");
+                }
+
+                OverthereFile reportPDFFile = overthereConnection.getFile(replaceFileSeparator(Paths.get(tempFolder, "report.pdf").toString(), operatingSystem));
+                if (reportPDFFile != null && reportPDFFile.exists()) {
+                    response.setPDFBytes(getFileByteArray(reportPDFFile, response));
+                    reportPDFFile.delete();
+                } else {
+                    response.addToErr("Can not find report file: report.pdf.\n");
+                }
+
+                OverthereFile junitXMLFile = overthereConnection.getFile(replaceFileSeparator(Paths.get(tempFolder, "junit.xml").toString(), operatingSystem));
+                if (junitXMLFile != null && junitXMLFile.exists()) {
+                    getJunitData(junitXMLFile.getInputStream(), response);
+                    response.setJunitXMLBytes(getFileByteArray(junitXMLFile, response));
+                    junitXMLFile.delete();
+                } else {
+                    response.addToErr("Can not find report file: junit.xml.\n");
+                }
+
+                if (isCloudUsed) {
+                    OverthereFile tmpYamlFile = overthereConnection.getFile(replaceFileSeparator(Paths.get(tempFolder, "tmp.yaml").toString(), operatingSystem));
+                    if (tmpYamlFile.exists()) {
+                        tmpYamlFile.delete();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            if (response == null) {
+                response = new CmdResponse();
+            }
+            StringWriter stacktrace = new StringWriter();
+            e.printStackTrace(new PrintWriter(stacktrace, true));
+            stderr.handleLine(stacktrace.toString());
+            response.addToErr(stacktrace.toString());
+        } finally {
+            if (response == null) {
+                response = new CmdResponse();
+            }
+            response.setComment(comment);
+            if (overthereConnection != null) {
+                overthereConnection.close();
+            }
+        }
+        return response;
+    }
+
+    private void getData(InputStream inputStream, CmdResponse response) {
+        try {
+            // use the factory to create a document builder
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = builder.parse(inputStream);
+            String hit = retrieveData(doc, "avg_hits/s");
+            String responseTime = retrieveData(doc, "avg_reqresponsetime");
+            String error = retrieveData(doc, "total_errors");
+
+            response.addStat(responseTime, error, hit);
+        } catch (Exception ex) {
+            response.addToErr("Failed to get data.\n" );
+        }
+    }
+
+    private String retrieveData(Document doc, String key) throws XPathExpressionException {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String result = null;
+        NodeList nodes = (NodeList) xPath.evaluate("/report/summary/statistics/statistic[@name='" + key + "']", doc.getDocumentElement(), XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); ++i) {
+            Element e = (Element) nodes.item(i);
+            result = e.getAttribute("value");
+        }
+        return result;
+    }
+
+    private void getJunitData(InputStream input, CmdResponse response) {
+        StringBuilder out = new StringBuilder();
+        StringBuilder error = new StringBuilder();
+        try {
+            // use the factory to create a documentbuilder
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = builder.parse(input);
+            int total = getStats(doc, "/resource/testsuite/testcase");
+            int success = getStats(doc, "/resource/testsuite/testcase/sucess");
+            int failure = getStats(doc, "/resource/testsuite/testcase/failure");
+            out.append("Results :\n");
+            out.append("\t").append(success).append(" SLAS were sucessful out of ").append(total);
+
+            if (failure > 0) {
+                error.append(failure).append(" SlA were in error out of ").append(total).append("\n");
+                getError(doc, error);
+                response.addToErr(error.toString());
+            }
+        } catch (Exception ex) {
+            response.addToErr(Arrays.toString(ex.getStackTrace()));
+        } finally {
+            response.addToOut(out);
+            response.addToOut(error);
+        }
+    }
+
+    private int getStats(Document doc, String query) throws XPathExpressionException {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        NodeList nodes = (NodeList) xPath.evaluate(query, doc.getDocumentElement(), XPathConstants.NODESET);
+        return nodes.getLength();
+    }
+
+    private  void getError(Document doc, StringBuilder output) throws XPathExpressionException {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        NodeList nodes = (NodeList) xPath.evaluate("/resource/testsuite/testcase/failure", doc.getDocumentElement(), XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); ++i) {
+            Node e = nodes.item(i);
+            output.append("Failure n° ").append(i + 1).append("\n");
+            output.append("\t").append(e.getFirstChild().getNodeValue()).append("\n");
+        }
+    }
+
     public class CmdResponse {
-        public int rc;
-        public String stdout;
-        public String stderr;
-        public String responsetime;
-        public String error;
-        public String hits;
+        public int responseCode;
+        public String stdout = "";
+        public String stderr = "";
+        private String responseTime;
+        private String error;
+        private String hits;
 
-        public byte[] ReportXMLbytes;
-        public byte[] Reportdtdbytes;
-        public byte[] junitxmlbytes;
-        public byte[] pdfbytes;
-        public String comment=null;
+        public byte[] reportXMLBytes;
+        public byte[] reportDTDBytes;
+        public byte[] junitXMLBytes;
+        public byte[] reportPDFBytes;
+        public String comment = null;
 
-        public CmdResponse(int rc, String stdout, String stderr)
-        {
-            this.rc = rc;
-
+        CmdResponse(int responseCode, String stdout, String stderr) {
+            this.responseCode = responseCode;
             this.stdout = stdout;
             this.stderr = stderr;
         }
 
-        public CmdResponse()
-        {
-            this.rc=0;
-            this.stdout="";
-            this.stderr="";
-        }
-        private void SetCommenrt(StringBuilder com)
-        {
-            this.comment=com.toString();
-        }
-        public void addstat(String responsetime,String error, String his)
-        {
-            this.responsetime=responsetime;
-            this.error=error;
-            this.hits=his;
+        CmdResponse() {
+
         }
 
-        public void addToOut(StringBuilder s)
-        {
-
-            this.stdout+="\n" + s.toString();
-        }
-        public void addToOut(String s)
-        {
-
-            this.stdout+="\n" + s;
+        private void setComment(StringBuilder com) {
+            this.comment = com.toString();
         }
 
-        public void addToErr(StringBuilder s)
-        {
-
-            this.stderr+="\n" + s.toString();
-            this.rc=0;
-        }
-        public void addToErr(String s)
-        {
-
-            this.stderr+="\n" + s;
-            this.rc=1;
+        void addStat(String responseTime, String error, String his) {
+            this.responseTime = responseTime;
+            this.error = error;
+            this.hits = his;
         }
 
-
-
-
-        public void setReportXMLbytes(byte[] reportXMLbytes) {
-            ReportXMLbytes = reportXMLbytes;
+        void addToOut(StringBuilder s) {
+            this.stdout += "\n" + s.toString();
         }
 
-
-        public void setReportdtdbytes(byte[] reportdtdbytes) {
-            Reportdtdbytes = reportdtdbytes;
-        }
-        public void setPDFbytes(byte[] pdf)
-        {
-            pdfbytes=pdf;
+        void addToErr(String s) {
+            this.stderr += "\n" + s;
+            this.responseCode = 1;
         }
 
-        public void setJunitxmlbytes(byte[] junitxmlbytes) {
-            this.junitxmlbytes = junitxmlbytes;
+        void setReportXMLBytes(byte[] reportXMLBytes) {
+            this.reportXMLBytes = reportXMLBytes;
         }
 
+        void setReportDTDBytes(byte[] reportDTDBytes) {
+            this.reportDTDBytes = reportDTDBytes;
+        }
 
+        void setPDFBytes(byte[] reportPDFBytes) {
+            this.reportPDFBytes = reportPDFBytes;
+        }
 
-
+        void setJunitXMLBytes(byte[] junitXMLBytes) {
+            this.junitXMLBytes = junitXMLBytes;
+        }
     }
+
+    enum OperatingSystem {
+
+        WINDOWS_TELNET(WINDOWS_TELNET_LABEL),
+        WINDOWS_RM(WINDOWS_RM_LABEL),
+        LINUX(LINUX_LABEL),
+        MAC(MAC_LABEL);
+
+        final String name;
+
+        OperatingSystem(final String name) {
+            this.name = name;
+        }
+
+        public static OperatingSystem fromName(String osLabel) {
+            switch (osLabel) {
+                case WINDOWS_TELNET_LABEL:
+                    return WINDOWS_TELNET;
+                case WINDOWS_RM_LABEL:
+                    return WINDOWS_RM;
+                case LINUX_LABEL:
+                    return LINUX;
+                case MAC_LABEL:
+                    return MAC;
+            }
+            throw new IllegalArgumentException("Can not support this OS : " + osLabel);
+        }
     }
+}

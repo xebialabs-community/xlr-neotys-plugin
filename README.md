@@ -26,11 +26,11 @@ Launch Test task allows the user to trigger a NeoLoad loading test on a remote m
     <li>On a source control (SVN)</li>
     <li>Locally</li>
 </ul>
-This task is also compatible with the usage of the new platform NeoLoad Web.
+This task is also compatible with the usage of the new NeoLoad Web platform .
 
 Note: If the user has a NeoLoad Web subscription, the plugin will stream the data to the user's NeoLoad Web account (SaaS or On-Premises).
 
-The task is failing when the SLA of the test are not met.
+The task is failing when the SLAs of the test are not met.
 
 The Launch Test task stores 3 report files: report.xml (required for the Trending Tile and Custom Trending Tile), report.pdf and junit.xml.
 
@@ -67,7 +67,7 @@ Here is an example of NeoLoad Controller configuration:
 <p align="center"><a target="_blank" href="screenshots/NeoLoadControllerConfiguration.PNG"><img src="screenshots/NeoLoadControllerConfiguration.PNG" alt="NeoLoad Controller Configuration" style="max-width:100%;"></a></p>
 
 #### Neotys Team Server
-This configuration specifies Neotys Team Server that allows to lease a NeoLoad license and check out a NTS collaboration project.
+This configuration specifies Neotys Team Server that allows leasing a NeoLoad license and check out a NTS collaboration project.
 <ul>
     <li>Neotys Team Server Url</li>
     <li>Username to accces to Neotys Team Server</li>
@@ -78,7 +78,7 @@ Here is an example of Neotys Team Server configuration:
 <p align="center"><a target="_blank" href="screenshots/NeotysTeamServerConfiguration.PNG"><img src="screenshots/NeotysTeamServerConfiguration.PNG" alt="Neotys Team Server Configuration" style="max-width:100%;"></a></p>
 
 #### NeoLoad Web
-This configuration specifies NeoLoad Web that allows to stream the launched test to NeoLoad Web SaaS or On-Premises.
+This configuration specifies NeoLoad Web that allows streaming the launched test to NeoLoad Web SaaS or On-Premises.
 <ul>
     <li>NeoLoad Web Api Url</li>
 </ul>
@@ -94,7 +94,7 @@ This configuration specifies the SVN third-party collaboration that is used to c
 </ul>
 
 #### NeoLoad Cloud
-This configuration specifies the credentials to access to Neotys Cloud Platform. This configuration is used for Cloud Session Task.
+This configuration specifies the credentials to access Neotys Cloud Platform. This configuration is used for Cloud Session Task.
 <ul>
     <li>Username to accces to Neotys Cloud Platform</li>
     <li>Password to access to Neotys Cloud Platform</li>

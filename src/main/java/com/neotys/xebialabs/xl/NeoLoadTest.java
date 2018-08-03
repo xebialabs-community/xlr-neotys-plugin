@@ -99,7 +99,7 @@ public class NeoLoadTest {
     private String windowsUserHomeDirectory;
 
     public NeoLoadTest(String host, String username, String password, String path, String OperatingSystemLabel,
-                       String neoloadScenario, String localNeoLoadProject, String neoLoadTestDescription, String neoloadWebAPIToken,
+                       String neoloadScenario, String localNeoLoadProject, String neoLoadTestDescription,
                        String nlcollabprojectname, String collaborationProjectPath, String nbVu, String nbHour) {
         this.nlHost = host;
         this.nlUsername = username;
@@ -109,7 +109,6 @@ public class NeoLoadTest {
         this.nlScenarioName = neoloadScenario;
         this.nlProjectPath = localNeoLoadProject;
         this.nlTestDescription = neoLoadTestDescription;
-        this.nlWebAPIToken = neoloadWebAPIToken;
         this.nlCollabProjectPath = collaborationProjectPath;
         this.nlCollabProjectName = nlcollabprojectname;
         this.nbHour = nbHour;
@@ -138,7 +137,7 @@ public class NeoLoadTest {
         //-----NL Web settings-------------------------------------
         if (nlweb != null) {
             this.nlWebUrl = nlweb.getProperty("NL_WEB_URL");
-            this.nlWebAPIToken = remoteScript.getProperty("NeoloadWebAPItoken");
+            this.nlWebAPIToken = nlweb.getProperty("NL_WEB_TOKEN");
             this.nlIsNlweb = true;
         } else
             this.nlIsNlweb = false;
@@ -195,8 +194,9 @@ public class NeoLoadTest {
         this.nlIsCloud = true;
     }
 
-    public void setWebAPI(String webURL) {
+    public void setWebAPI(String webURL, String webToken) {
         this.nlWebUrl = webURL;
+        this.nlWebAPIToken = webToken;
         this.nlIsNlweb = true;
     }
 

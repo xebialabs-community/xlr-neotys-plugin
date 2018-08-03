@@ -26,6 +26,7 @@
     </type>
     <type type="NeoLoad.WEB" label="NeoLoad Web" extends="xlrelease.Configuration">
         <property name="NL_WEB_URL" default="https://neoload-api.saas.neotys.com" required="false" label="NeoLoad Web Api Url" description="NeoLoad Web Api Url" category="Configuration" />
+        <property name="NL_WEB_TOKEN" required="false" label="NeoLoad Web Api Token" description="NeoLoad Web Api Token" category="Configuration" />
     </type>
     <type type="NeoLoad.TeamServer" label="Neotys Team Server" extends="xlrelease.Configuration">
         <property name="TeamServerHost" label="NTS Url" description="Neotys Team Server url" category="Configuration"/>
@@ -57,7 +58,6 @@
         <property name="taskColor" hidden="true" default="##6CBF09" />
         <property name="NeoLoadPath"  kind="ci" required="true" label="NeoLoad" referenced-type="NeoLoad.Controller" category="input"/>
         <property name="NeoLoadWebAPI" kind="ci" required="false" label="NeoLoad Web Api" referenced-type="NeoLoad.WEB" category="input"/>
-        <property name="NeoloadWebAPItoken" category="input" required="false" label="NeoLoad Web Token" description="NeoLoad Web Api token"/>
         <property name="NeoloadCloudPlatform" kind="ci" category="input" required="false" referenced-type="NeoLoad.Cloud" />
         <property name="NeoLoadTeamServer"  kind="ci" required="false" category="input" label="Neotys Team Server" referenced-type="NeoLoad.TeamServer" />
         <property name="NumberOfUser" required="false" category="input" label="Virtual User Number" description="Number of virtual user" />

@@ -23,12 +23,12 @@ for var in variables:
 # ->${release.title}
 session = NeoLoadTest(NeoLoadPath["NL_Host"], NeoLoadPath["username"], NeoLoadPath["password"],
                       NeoLoadPath["NL_Controller_Path"], NeoLoadPath["OS"], NeoloadScenario, LocalNeoLoadProject,
-                      NeoLoadTestDescription, NeoloadWebAPItoken, CollabProjectName, CollaborationProjectPath,
+                      NeoLoadTestDescription, CollabProjectName, CollaborationProjectPath,
                       NumberOfUser, NumberOfhour)
 session.setReleaseInformation(releaseid, releasename)
 
 if NeoLoadWebAPI is not None:
-    session.setWebAPI(NeoLoadWebAPI["NL_WEB_URL"])
+    session.setWebAPI(NeoLoadWebAPI["NL_WEB_URL"], NeoLoadWebAPI["NL_WEB_TOKEN"])
 
 if NeoLoadTeamServer is not None:
     session.setNTS(NeoLoadTeamServer["TeamServerHost"], NeoLoadTeamServer["username"], NeoLoadTeamServer["password"],

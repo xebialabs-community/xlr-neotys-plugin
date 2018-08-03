@@ -14,7 +14,7 @@ public class NeoLoadSharedConfigTest extends BaseTest {
 	private static final String NEO_LOAD_CLOUD_CONFIGURATION_TEST = "NeoLoad Cloud Configuration Test";
 	private static final String NTS_COLLABORATION_TEST = "NTS Collaboration Test";
 	private static final String NEO_LOAD_WINDOWS = "NeoLoad Windows";
-	private static final String NEO_LOAD_TEAM_SERVER = "NeoLoad Team Server";
+	private static final String NEOTYS_TEAM_SERVER = "Neotys Team Server";
 	private static final String NEO_LOAD_WEB_PROD = "NeoLoad Web PROD";
 	private static final String NEO_LOAD_COLLABORATION = "NeoLoad Collaboration";
 	private static final String NEO_LOAD_CONTROLLER = "NeoLoad Controller";
@@ -75,9 +75,9 @@ public class NeoLoadSharedConfigTest extends BaseTest {
 	public void openConfigurationNeoloadTeamServer() {
 		MainMenu.clickMenu(SETTINGS);
 		SubMenu.clickSubMenu(SHARED_CONFIGURATION);
-		SharedConfigurationPage.openSharedConfiguration(NEO_LOAD_TEAM_SERVER);
-		SharedConfigurationPropertiesPage.checkSharedConfigurationHeader(NEO_LOAD_TEAM_SERVER);
-		SharedConfigurationPropertiesPage.setEditFieldBySequence(1, NEO_LOAD_TEAM_SERVER);
+		SharedConfigurationPage.openSharedConfiguration(NEOTYS_TEAM_SERVER);
+		SharedConfigurationPropertiesPage.checkSharedConfigurationHeader(NEOTYS_TEAM_SERVER);
+		SharedConfigurationPropertiesPage.setEditFieldBySequence(1, NEOTYS_TEAM_SERVER);
 		SharedConfigurationPropertiesPage.setEditFieldBySequence(2, "http://nts:9999/nts/");
 		SharedConfigurationPropertiesPage.setEditFieldBySequence(3, login);
 		SharedConfigurationPropertiesPage.setEditFieldBySequence(4, password);
@@ -141,7 +141,7 @@ public class NeoLoadSharedConfigTest extends BaseTest {
 		deleteConfig(NEO_LOAD_CLOUD_CONFIGURATION_TEST);
 		deleteConfig(NTS_COLLABORATION_TEST);
 		deleteConfig(NEO_LOAD_WINDOWS);
-		deleteConfig(NEO_LOAD_TEAM_SERVER);
+		deleteConfig(NEOTYS_TEAM_SERVER);
 		deleteConfig(NEO_LOAD_WEB_PROD);
 	}
 

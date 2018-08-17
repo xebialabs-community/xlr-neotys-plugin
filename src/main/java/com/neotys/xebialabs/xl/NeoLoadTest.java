@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.neotys.xebialabs.xl.NeoLoadTest.OperatingSystem.WINDOWS_RM;
 import static com.neotys.xebialabs.xl.NeoLoadTest.OperatingSystem.WINDOWS_TELNET;
 import static com.xebialabs.overthere.ConnectionOptions.ADDRESS;
@@ -80,6 +81,7 @@ public class NeoLoadTest {
     private String nbHour;
     private String nbVu;
     private boolean nlIsNTS;
+    private boolean nlIsNTSCollab;
     private String ntsLicenseID;
     private String nlCollabProjectName;
     private String nlWebUrl;
@@ -150,7 +152,6 @@ public class NeoLoadTest {
             this.ntsUsername = nts.getProperty("username");
             this.ntsPassword = nts.getProperty("password");
             this.ntsLicenseID = nts.getProperty("licenceID");
-
         } else
             this.nlIsNTS = false;
         //---------------------------------------------------------
@@ -257,29 +258,33 @@ public class NeoLoadTest {
         }
         cmd.addRaw("\"" + replaceFileSeparator(cmdLine, operatingSystem) + "\"");
 
-        if (nlIsCollab) {
-            cmd.addRaw("-Collab " + "'" + this.nlCollabUrl + this.nlCollabProjectPath + "'");
-            cmd.addRaw("-CollabLogin " + "'" + this.nlCollabUsername + ":" + PasswordEncoder.encode(this.nlCollabPassword) + "'");
-            cmd.addRaw("-checkoutProject " + "'" + this.nlCollabProjectName + "'");
-        }
+		if (nlIsCollab) {
+			cmd.addRaw("-Collab " + "'" + this.nlCollabUrl + this.nlCollabProjectPath + "'");
+			cmd.addRaw("-CollabLogin " + "'" + this.nlCollabUsername + ":" + PasswordEncoder.encode(this.nlCollabPassword) + "'");
+			cmd.addRaw("-checkoutProject " + "'" + this.nlCollabProjectName + "'");
+		}
 
         if (nlIsNTS) {
             cmd.addRaw("-NTS " + "'" + this.ntsUrl + "'");
-            cmd.addRaw("-NTSCollabPath " + "'" + this.nlCollabProjectPath + "'");
             cmd.addRaw("-NTSLogin " + "'" + this.ntsUsername + ":" + PasswordEncoder.encode(this.ntsPassword) + "'");
-            cmd.addRaw("-checkoutProject " + "'" + this.nlCollabProjectName + "'");
-            cmd.addRaw("-publishTestResult ");
             cmd.addRaw("-leaseLicense " + "'" + this.ntsLicenseID + ":" + nbVu + ":" + nbHour + "'");
+
+			if (!nlIsCollab && !isNullOrEmpty(this.nlCollabProjectPath) && !isNullOrEmpty(this.nlCollabProjectName)) {
+				nlIsNTSCollab = true;
+				cmd.addRaw("-NTSCollabPath " + "'" + this.nlCollabProjectPath + "'");
+				cmd.addRaw("-checkoutProject " + "'" + this.nlCollabProjectName + "'");
+				cmd.addRaw("-publishTestResult ");
+			}
         }
+
+		if (!nlIsCollab && !nlIsNTSCollab) {
+			cmd.addRaw("-project " + "'" + this.nlProjectPath + "'");
+		}
 
         if (nlIsNlweb) {
             cmd.addRaw("-nlweb ");
             cmd.addRaw("-nlwebAPIURL " + "'" + this.nlWebUrl + "'");
             cmd.addRaw("-nlwebToken " + "'" + this.nlWebAPIToken + "'");
-        }
-
-        if (!nlIsCollab && !nlIsNTS) {
-            cmd.addRaw("-project " + "'" + this.nlProjectPath + "'");
         }
 
         if (nlIsCloud) {

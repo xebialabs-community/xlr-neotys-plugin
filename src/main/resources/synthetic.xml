@@ -62,8 +62,8 @@
         <property name="NeoLoadTeamServer"  kind="ci" required="false" category="input" label="Neotys Team Server" referenced-type="NeoLoad.TeamServer" />
         <property name="NumberOfUser" required="false" category="input" label="Virtual User Number" description="Number of virtual user" />
         <property name="NumberOfhour" required="false" category="input" label="Duration" description="Number of hour of license lease" />
-        <property name="CollaborationProjectPath" label="NTS Repository Projects" description="Neotys Team Server repository projects" category="input" required="false"/>
-        <property name="CollabProjectName" category="input" required="false" label="NTS Project Name" description="Neotys Team Server project name"/>
+        <property name="CollaborationProjectPath" label="Collaboration Projects Repository" description="Projects repository Neotys Team Server or SVN third-party" category="input" required="false"/>
+        <property name="CollabProjectName" category="input" required="false" label="Collaboration Project Name" description="Project name Neotys Team Server or SVN third-party"/>
         <property name="NeoLoadCollaboration" kind="ci" required="false" category="input" label="NeoLoad Collaboration" description="NeoLoad Collaboration Project" referenced-type="NeoLoad.Collaboration" />
         <property name="LocalNeoLoadProject" category="input" required="false" description="Path of the local NeoLoad project" label="Local NeoLoad Project Path"/>
         <property name="NeoloadScenario" category="input" required="true" label="NeoLoad Scenario" description="Name of NeoLoad scenario to launch"/>

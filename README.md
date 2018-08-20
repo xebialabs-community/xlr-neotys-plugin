@@ -20,7 +20,7 @@ NeoLoad launched tests can be sent to <a href="https://www.neotys.com/neoload/fe
 ## Tasks
 The plugin has 3 different tasks.
 #### Launch Test
-Launch Test task allows the user to trigger a NeoLoad loading test on a remote machine (Windows, Linux, Mac OS). This task supports all the different ways to store Neoload projects:
+Launch Test task allows the user to trigger a NeoLoad loading test on a remote machine (Windows, Linux, Mac OS). This task supports all the different ways to store NeoLoad projects:
 <ul>
     <li>On a Neotys Team Server</li>
     <li>On a source control (SVN)</li>
@@ -35,7 +35,7 @@ The task is failing when the SLAs of the test are not met.
 The Launch Test task stores 3 report files: report.xml (required for the Trending Tile and Custom Trending Tile), report.pdf and junit.xml.
 
 #### Update Variable
-The update variable task allows the user to rewrite the runtime context of a test. The main idea behind this task is to update the project used by "Launch Test task" by updating the reference of the System under test.
+The update variable task allows the user to rewrite the runtime context of a test. The main idea behind this task is to update the project used by "Launch Test" task by updating the reference of the System under test.
 
 If the XL release user is deploying the application on a new environment, he will be able to pass the definition of the environment to NeoLoad through the Update Variable task.
 
@@ -81,6 +81,7 @@ Here is an example of Neotys Team Server configuration:
 This configuration specifies NeoLoad Web that allows streaming the launched test to NeoLoad Web SaaS or On-Premises.
 <ul>
     <li>NeoLoad Web Api Url</li>
+    <li>NeoLoad Web Api Token</li>
 </ul>
 Here is an example of NeoLoad Web configuration:
 <p align="center"><a target="_blank" href="screenshots/NeoLoadWebConfiguration.PNG"><img src="screenshots/NeoLoadWebConfiguration.PNG" alt="NeoLoad Web Configuration" style="max-width:100%;"></a></p>

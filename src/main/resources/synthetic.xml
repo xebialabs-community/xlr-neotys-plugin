@@ -159,7 +159,7 @@
 
 
     <!-- NEOLOAD TREND TILES -->
-    <type type="NeoLoad.NeoLoadTrendingTile" label="NeoLoad Trending Tile" description="Display Trending Graph for all NeoLoad launched tests" extends="xlrelease.Tile">
+    <type type="Neoload.NeoLoadTrendingTile" label="NeoLoad Trending Tile" description="Display Trending Graph for all NeoLoad launched tests" extends="xlrelease.Tile">
         <property name="uri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoloadtrending-summary-view.html"/>
         <property name="detailsUri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoload-details-view.html"/>
         <property name="title" description="Tile title" default="NeoLoad Trending Graph"/>
@@ -176,7 +176,7 @@
         <property name="expirationTime" kind="integer" hidden="true" default="3" description="Expiration time for a tile cache (in seconds)."/>
         <property name="maxCacheEntries" kind="integer" hidden="true" default="1" description="Maximum cache entries."/>
     </type>
-    <type type="NeoLoad.NeoLoadCustomTrendingTile" label="NeoLoad Custom Trending Tile" description="Display Custom Trending Graph for all NeoLoad launched tests" extends="xlrelease.Tile">
+    <type type="Neoload.NeoLoadCustomTrendingTile" label="NeoLoad Custom Trending Tile" description="Display Custom Trending Graph for all NeoLoad launched tests" extends="xlrelease.Tile">
         <property name="uri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoloadcustomtrending-summary-view.html"/>
         <property name="detailsUri" hidden="true" default="NeoLoad/NeoLoadTrendingTile/neoloadcustom-details-view.html"/>
         <property name="title" description="Tile title" default="NeoLoad Custom Trending Graph"/>

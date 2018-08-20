@@ -30,6 +30,7 @@ def GetNeoLoadData(title, releaseid, trendingtype):
             if task.type.name == "CustomScriptTask":
                 # if task.type=="Neoload.LaunchTest" :
                 attachments = task.attachments
+                print attachments
                 for attachment in attachments:
                     if "report.xml" in attachment.exportFilename or "report.xml" in attachment.fileUri:
                         file_byte = _releaseApi.getAttachment(attachment.id)
@@ -49,9 +50,11 @@ def GetNeoLoadData(title, releaseid, trendingtype):
         result += "]"
 
         output += result + "}"
+        print "Date for graph ................."
+        print output
         return output
     except Exception as e:
-        print  e.getMessage()
+        print e.getMessage()
         return None
 
 

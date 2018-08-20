@@ -3,15 +3,21 @@ package com.neotys.xebialabs.xl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 
 /**
  * Created by hrexed on 04/04/18.
@@ -39,8 +45,16 @@ public class NeoLoadFileUtil {
         InputStream input = new ByteArrayInputStream(bytes);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(input);
 
+        //don't valid xml file
+		builder.setEntityResolver((publicId, systemId) -> {
+			if (systemId.contains("report.dtd")) {
+				return new InputSource(new StringReader(""));
+			} else {
+				return null;
+			}
+		});
+        Document doc = builder.parse(input);
         switch (type) {
             case HITS:
                 return getData(doc, "avg_hits/s");
@@ -49,7 +63,7 @@ public class NeoLoadFileUtil {
             case RESPONSE:
                 return getData(doc, "avg_reqresponsetime");
         }
-        return null;
+        return "0";
     }
 
     private static String getData(Document doc, String key) throws XPathExpressionException {
@@ -60,7 +74,11 @@ public class NeoLoadFileUtil {
             Element e = (Element) nodes.item(i);
             result = e.getAttribute("value");
         }
-        return result;
+		System.out.println("Result parse: " + result);
+		if (result != null) {
+			return result.replaceAll(",", ".");
+		}
+		return null;
     }
 
     private static String getCustomData(Document doc, String Xpath) throws XPathExpressionException {

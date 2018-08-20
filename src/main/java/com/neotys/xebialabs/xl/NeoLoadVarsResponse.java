@@ -5,12 +5,12 @@ package com.neotys.xebialabs.xl;
  */
 class NeoLoadVarsResponse extends CloudResponse {
 
-    NeoLoadVarsResponse(String content) {
-        super(content);
+    NeoLoadVarsResponse(String content, int responseCode) {
+        super(content, responseCode);
     }
 
     void appendContent(String content) {
-        if (!this.ymlContent.contains(content))
+        if (!this.getYmlContent().contains(content))
             this.ymlContent += "," + content;
     }
 }

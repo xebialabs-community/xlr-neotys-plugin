@@ -28,7 +28,7 @@ def GetNeoLoadData(title, releaseid, trendingtype):
 
         for task in tasks:
             if task.type.name == "CustomScriptTask":
-                # if task.type=="NeoLoad.LaunchTest" :
+                # if task.type=="Neoload.LaunchTest" :
                 attachments = task.attachments
                 for attachment in attachments:
                     if "report.xml" in attachment.exportFilename or "report.xml" in attachment.fileUri:

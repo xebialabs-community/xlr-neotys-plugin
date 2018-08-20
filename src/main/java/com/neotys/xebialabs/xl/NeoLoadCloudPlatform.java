@@ -61,10 +61,11 @@ public class NeoLoadCloudPlatform {
     }
 
     public CloudResponse generateYmlCloudFile() {
+		int responseCode = 0;
         CloudResponse cloudResponse;
         StringBuilder yml = new StringBuilder();
         try {
-            addOutput("Generating the YML");
+            addOutput("Generating the YML\n");
             yml.append("infrastructures:\n");
             yml.append("  - name: My Cloud infrastructure\n");
             yml.append("    type: NEOTYS_CLOUD_LOAD_GENERATOR\n");
@@ -81,12 +82,16 @@ public class NeoLoadCloudPlatform {
 	        }
 
             if (yml.length() > 0) {
-                addOutput("YML generated : " + yml.toString());
+                addOutput("YML generated :\n" + yml.toString());
+				responseCode = 0;
             }
+			if (errors.length() > 0) {
+				responseCode = 1;
+			}
         } catch (Exception e) {
             addError("ERROR", "Technical Error", e);
         }
-        cloudResponse = new CloudResponse(yml.toString());
+        cloudResponse = new CloudResponse(yml.toString(), responseCode);
         cloudResponse.addToError(errors);
         cloudResponse.addToOut(output);
 

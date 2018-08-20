@@ -303,11 +303,9 @@ public class NeoLoadTest {
         cmd.addRaw("-SLAJUnitMapping 'pass'");
         cmd.addRaw("-SLAJUnitResults '" + replaceFileSeparator(Paths.get(fileTempFolder, "junit.xml'").toString(), operatingSystem));
 
-        if (this.releaseName != null) {
-            cmd.addRaw("-description '" + this.nlTestDescription + "_" + this.releaseName + "_" + this.releaseId + "'");
-        } else {
-            cmd.addRaw("-description '" + this.nlTestDescription + "'");
-        }
+		if (!isNullOrEmpty(this.nlTestDescription)) {
+			cmd.addRaw("-description '" + this.nlTestDescription + "'");
+		}
 
         cmd.addRaw("-report '" + replaceFileSeparator(Paths.get(fileTempFolder, "report.xml").toString(), operatingSystem)
                 + "," + replaceFileSeparator(Paths.get(fileTempFolder, "report.pdf").toString(), operatingSystem) + "'");

@@ -4,14 +4,15 @@ package com.neotys.xebialabs.xl;
  * Created by hrexed on 16/02/18.
  */
 public class CloudResponse {
+	private int responseCode;
     private String stdout;
     private String stderr;
     protected String ymlContent;
 
-    CloudResponse(String content) {
+    CloudResponse(String content, int responseCode) {
         this.ymlContent = content;
+        this.responseCode = responseCode;
     }
-
 
 	public String getStdout() {
 		return stdout;
@@ -19,6 +20,10 @@ public class CloudResponse {
 
 	public String getStderr() {
 		return stderr;
+	}
+
+	public int getResponseCode() {
+		return responseCode;
 	}
 
 	public String getYmlContent() {

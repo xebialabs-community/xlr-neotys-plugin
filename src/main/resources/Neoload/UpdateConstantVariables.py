@@ -32,15 +32,16 @@ else:
 
 
 # set variables
-output = response.stdout
-error = response.stderr
+responseCode = response.getResponseCode()
+output = response.getStdout()
+error = response.getStderr()
 
 
-if response.rc == 0:
+if responseCode == 0:
     print output
 else:
     print "Exit code "
-    print response.rc
+    print responseCode
     print
     print "#### Output:"
     print output
@@ -50,4 +51,4 @@ else:
     print
     print "----"
 
-    sys.exit(response.rc)
+    sys.exit(responseCode)

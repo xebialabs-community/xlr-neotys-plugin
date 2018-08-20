@@ -6,7 +6,7 @@ def GetNeoLoadData(title,releaseid):
 
         TasksList=taskApi.searchTasksByTitle(title,None,releaseid)
         for task in TasksList:
-            if task.type=="NeoLoad.LaunchTest" :
+            if task.type=="Neoload.LaunchTest" :
                 attachmens=task.attachments
                 for att in attachmens:
                     if att.name=="report.xml":

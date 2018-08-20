@@ -157,9 +157,10 @@ if eu_west_4 is not None :
 
 response=session.generateYmlCloudFile()
 # set variables
+responseCode = response.getResponseCode()
 output = response.getStdout()
 error = response.getStderr()
-NeoLoadCloudYML = Variable('NeoLoadCloudYML', response.ymlContent)
+NeoLoadCloudYML = Variable('NeoLoadCloudYML', response.getYmlContent())
 
 releaseid=getCurrentRelease().id
 variables=releaseApi.getVariables(releaseid)
@@ -167,7 +168,7 @@ CreateVar=True
 
 for var in variables :
     if var.key == 'NeoLoadCloudYML':
-        var.value=response.ymlContent
+        var.value=response.getYmlContent()
         releaseApi.updateVariable( var)
         CreateVar=False
 
@@ -175,12 +176,11 @@ if CreateVar == True :
     releaseApi.createVariable(releaseid, NeoLoadCloudYML)
 
 
-
-if response.rc == 0:
+if responseCode == 0:
         print output
 else:
     print "Exit code "
-    print response.rc
+    print responseCode
     print
     print "#### Output:"
     print output
@@ -190,4 +190,4 @@ else:
     print
     print "----"
 
-    sys.exit(response.rc)
+    sys.exit(responseCode)

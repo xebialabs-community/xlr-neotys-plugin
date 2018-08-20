@@ -104,7 +104,7 @@ public class NeoLoadSharedConfigTest extends BaseTest {
 		CreateTemplatePage.createTemplateByName(TEMPLATE_NEOLOAD_TEST);
 		ReleasePage.newReleaseFromTemplate();
 		CreateReleasePage.createReleaseByName("Test NeoLoad");
-		ReleasePage.addTask(NL_TEST, "Neo Load", "NeoLoad Test");
+		ReleasePage.addTask(NL_TEST, "NeoLoad", "NeoLoad Test");
 		TaskDetailPage.selectItemByIndex(1, NEO_LOAD_WINDOWS);
 		TaskDetailPage.closeTaskDetails();
 	}

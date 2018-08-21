@@ -26,7 +26,7 @@ Launch Test task allows the user to trigger a NeoLoad loading test on a remote m
     <li>On a source control (SVN)</li>
     <li>Locally</li>
 </ul>
-This task is also compatible with the usage of the new NeoLoad Web platform .
+This task is also compatible with the usage of the new NeoLoad Web platform.
 
 Note: If the user has a NeoLoad Web subscription, the plugin will stream the data to the user's NeoLoad Web account (SaaS or On-Premises).
 
@@ -35,7 +35,7 @@ The task is failing when the SLAs of the test are not met.
 The Launch Test task stores 3 report files: report.xml (required for the Trending Tile and Custom Trending Tile), report.pdf and junit.xml.
 
 #### Update Variable
-The update variable task allows the user to rewrite the runtime context of a test. The main idea behind this task is to update the project used by "Launch Test" task by updating the reference of the System under test.
+The Update Variable task allows the user to rewrite the runtime context of a test. The main idea behind this task is to update the project used by the "Launch Test" task by updating the reference of the System under test.
 
 If the XL release user is deploying the application on a new environment, he will be able to pass the definition of the environment to NeoLoad through the Update Variable task.
 
@@ -78,7 +78,7 @@ Here is an example of Neotys Team Server configuration:
 <p align="center"><a target="_blank" href="screenshots/NeotysTeamServerConfiguration.PNG"><img src="screenshots/NeotysTeamServerConfiguration.PNG" alt="Neotys Team Server Configuration" style="max-width:100%;"></a></p>
 
 #### NeoLoad Web
-This configuration specifies NeoLoad Web that allows streaming the launched test to NeoLoad Web SaaS or On-Premises.
+This configuration allows sending the launched test to NeoLoad Web SaaS or On-Premises.
 <ul>
     <li>NeoLoad Web Api Url</li>
     <li>NeoLoad Web Api Token</li>
@@ -125,7 +125,7 @@ The user can trend any metrics exposed in NeoLoad report.xml.
 The user will specify the XPath query required to collect the KPI from NeoLoad report.xml.
 
 ## Installation
-Pleas refer to <a href="https://docs.xebialabs.com/xl-release/how-to/install-or-remove-xl-release-plugins.html">How to install a XL Release plugin</a>
+Pleas refer to <a href="https://docs.xebialabs.com/xl-release/how-to/install-or-remove-xl-release-plugins.html">How to install an XL Release plugin</a>
 
 ## References
 <ul>

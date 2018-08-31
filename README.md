@@ -17,6 +17,11 @@ NeoLoad plugin for XL release allows the users to launch <a href="https://www.ne
 
 NeoLoad launched tests can be sent to <a href="https://www.neotys.com/neoload/features/neoload-web">NeoLoad Web</a> SaaS or On-Premises.
 
+## Installation
+
+1. Download NeoLoad plugin from the [release folder](../../releases).
+2. Please refer to [How to install an XL Release plugin](https://docs.xebialabs.com/xl-release/how-to/install-or-remove-xl-release-plugins.html)
+
 ## Tasks
 The plugin has 3 different tasks.
 #### Launch Test
@@ -124,14 +129,9 @@ The user can trend any metrics exposed in NeoLoad report.xml.
 
 The user will specify the XPath query required to collect the KPI from NeoLoad report.xml.
 
-## Installation
-Download NeoLoad plugin in <a href="release">release folder</a>.
-
-Please refer to <a href="https://docs.xebialabs.com/xl-release/how-to/install-or-remove-xl-release-plugins.html">How to install an XL Release plugin</a>
-
 ## References
-<ul>
-    <li><a href="https://www.neotys.com/neoload/overview">NeoLoad</a></li>
-    <li><a href="https://neoload.saas.neotys.com/">NeoLoad Web</a></li>
-    <li><a href="https://www.neotys.com/solutions/cloud-load-testing">Neotys Cloud Platform</a></li>
-</ul>
+
+* <a href="https://www.neotys.com/neoload/overview">NeoLoad</a>
+* <a href="https://neoload.saas.neotys.com/">NeoLoad Web</a>
+* <a href="https://www.neotys.com/solutions/cloud-load-testing">Neotys Cloud Platform</a>
+

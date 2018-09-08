@@ -3,94 +3,87 @@ package com.neotys.xebialabs.xl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 
 /**
  * Created by hrexed on 04/04/18.
  */
-public  class  NeoLoadFileUtil {
+public class NeoLoadFileUtil {
 
-    static final String HITS="hits";
-    static final String ERRORS="error";
-    static final String RESPONSE="response";
-    static final String CUSTOM="custom";
+    private static final String HITS = "hits";
+    private static final String ERRORS = "error";
+    private static final String RESPONSE = "response";
 
-    public static String GetCustomStat(String Xpath, byte[] bytes)
-    {
-        String result = null;
-
-        try{
-
-            InputStream input= new ByteArrayInputStream(bytes);
+    public static String getCustomStat(String xpath, byte[] bytes) {
+        try {
+            InputStream input = new ByteArrayInputStream(bytes);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc=builder.parse(input);
+            Document doc = builder.parse(input);
 
-            result=GetCustomData(doc,Xpath);
-
-        }
-        catch(Exception e)
-        {
+            return getCustomData(doc, xpath);
+        } catch (Exception e) {
             return e.getMessage();
         }
-        finally {
-            return result;
-        }
     }
-    public static String GetStat(String Type,byte[] bytes) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException {
-        String result = null;
 
-        InputStream input= new ByteArrayInputStream(bytes);
+    public static String getStat(String type, byte[] bytes) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException {
+        InputStream input = new ByteArrayInputStream(bytes);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc=builder.parse(input);
 
-        switch(Type)
-        {
+        //don't valid xml file
+		builder.setEntityResolver((publicId, systemId) -> {
+			if (systemId.contains("report.dtd")) {
+				return new InputSource(new StringReader(""));
+			} else {
+				return null;
+			}
+		});
+        Document doc = builder.parse(input);
+        switch (type) {
             case HITS:
-                result=GetData(doc,"avg_hits/s");
-                break;
+                return getData(doc, "avg_hits/s");
             case ERRORS:
-                result=GetData(doc,"total_errors");
-                break;
+                return getData(doc, "total_errors");
             case RESPONSE:
-                result=GetData(doc,"avg_reqresponsetime");
-                break;
-
-
+                return getData(doc, "avg_reqresponsetime");
         }
-        return result;
-
-
+        return "0";
     }
 
-
-
-    public static String GetData(Document doc,String key) throws XPathExpressionException {
+    private static String getData(Document doc, String key) throws XPathExpressionException {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String result = null;
-        NodeList nodes = (NodeList)xPath.evaluate("/report/summary/statistics/statistic[@name='"+key+"']", doc.getDocumentElement(), XPathConstants.NODESET);
+        NodeList nodes = (NodeList) xPath.evaluate("/report/summary/statistics/statistic[@name='" + key + "']", doc.getDocumentElement(), XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); ++i) {
             Element e = (Element) nodes.item(i);
-            result= e.getAttribute("value");
-
+            result = e.getAttribute("value");
         }
-        return result;
+		System.out.println("Result parse: " + result);
+		if (result != null) {
+			return result.replaceAll(",", ".");
+		}
+		return null;
     }
-    public static String GetCustomData(Document doc,String Xpath) throws XPathExpressionException {
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        String result = null;
-        XPathExpression xPathExpression = xPath.compile(Xpath);
-        result=  (String)xPathExpression.evaluate(doc, XPathConstants.STRING);
 
-        return result;
+    private static String getCustomData(Document doc, String Xpath) throws XPathExpressionException {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        XPathExpression xPathExpression = xPath.compile(Xpath);
+        return (String) xPathExpression.evaluate(doc, XPathConstants.STRING);
     }
 }

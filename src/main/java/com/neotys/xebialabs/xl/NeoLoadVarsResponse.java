@@ -3,15 +3,14 @@ package com.neotys.xebialabs.xl;
 /**
  * Created by hrexed on 23/03/18.
  */
-public class NeoLoadVarsResponse extends CloudResponse {
+class NeoLoadVarsResponse extends CloudResponse {
 
-    public NeoLoadVarsResponse(String content, int code) {
-        super(content, code);
+    NeoLoadVarsResponse(String content, int responseCode) {
+        super(content, responseCode);
     }
-    public void appendContent(String Content)
 
-    {
-        if(!this.YmlContent.contains(Content))
-             this.YmlContent+=","+Content;
+    void appendContent(String content) {
+        if (!this.getYmlContent().contains(content))
+            this.ymlContent += "," + content;
     }
 }

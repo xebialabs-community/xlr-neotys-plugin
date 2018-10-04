@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/xebialabs-community/xlr-neotys-plugin.svg?branch=master)](https://travis-ci.org/xebialabs-community/xlr-neotys-plugin)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/480e882e8e744d7484fe8c0060bbd070)](https://www.codacy.com/app/tjrandall/xlr-neotys-plugin_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=xebialabs-community/xlr-neotys-plugin&amp;utm_campaign=Badge_Grade)
-[![Code Climate](https://codeclimate.com/github/xebialabs-community/xlr-neotys-plugin/badges/gpa.svg)](https://codeclimate.com/github/xebialabs-community/xlr-neotys-plugin)
 [![License: MIT][xlr-neotys-plugin-license-image] ][xlr-neotys-plugin-license-url]
 [![Github All Releases][xlr-neotys-plugin-downloads-image]]()
 
@@ -128,6 +127,14 @@ Here is an example of NeoLoad Trending Graph:
 The user can trend any metrics exposed in NeoLoad report.xml.
 
 The user will specify the XPath query required to collect the KPI from NeoLoad report.xml.
+
+## Installation
+Download NeoLoad plugin in <a href="release">release folder</a>.
+
+Please refer to <a href="https://docs.xebialabs.com/xl-release/how-to/install-or-remove-xl-release-plugins.html">How to install an XL Release plugin</a>
+
+## Copyright
+<a href="copyright.txt">See here</a>
 
 ## References
 

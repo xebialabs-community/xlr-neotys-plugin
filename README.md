@@ -128,11 +128,6 @@ The user can trend any metrics exposed in NeoLoad report.xml.
 
 The user will specify the XPath query required to collect the KPI from NeoLoad report.xml.
 
-## Installation
-Download NeoLoad plugin in <a href="release">release folder</a>.
-
-Please refer to <a href="https://docs.xebialabs.com/xl-release/how-to/install-or-remove-xl-release-plugins.html">How to install an XL Release plugin</a>
-
 ## Copyright
 <a href="copyright.txt">See here</a>
 

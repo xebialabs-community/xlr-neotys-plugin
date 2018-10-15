@@ -4,7 +4,7 @@ deploy:
     provider: releases
     api_key:
         secure: TH8AyyzMUv8Hqu47quvoBjK0RQf41xtvsed3otUvEV0lJSAiqqogiOZVqerD2utghVPfhEGKUwzOZbwLAViElOqf7U0J6onFIwa3NGWteP9vIvtgIEUeJD7kuAJu1v9Zc2euAjzLSwYifngWrxl04I9pZZNh7BgtcdmKbsHN5zQqGFZOFJITnFFuovMQJpFgbfBtBPL+jygmSplTuaLSFjd5nW9S6GQp+DHKC6oCNIAfvAp7vNQU5CLhp6+FEgu+my8flfnFIaEDs4LTvDujWZ95u0ls/RMmZ3+x3BGPGy/D0P698uRjl0ONRcK3SBNCcIfpzJSR8EdXm+tm7oR44YMOVmQAthS1zVtE1GVRhNZCJeZ0KCBZc+RCJ8NfggjOr3372ZpAHmGDmV91PC+OqbREVgtKs3JGlxQwLpPtJ+Il0sMir+B4RoM2Kc8KzNCEI6I49XGeoTprM0sbvw7TaVhplji0YmofL5KYm39XdTsMbCq4GkLM/Chr+5tCzEc4W1JxT+38kJLMlVS44w+kDPqTBw+msLqthJd6YDZpnBy+nm9rw098MfC2aNNfO063/RQgovUxuyVZ5n28/Am8KzhJ0UDdDtdI9KBDgH6+XW/4iErSDPWltxIuFdPZSxJSr13yeCbPhgJ2BqxJcMBd+E/+wmWxj2Y/wu51AHa4vEo=
-    file: build/libs/xlr-neotys-plugin-1.0.0.jar
+    file: build/libs/xlr-neotys-plugin-1.2.0.jar
     skip_cleanup: true
     on:
         all_branches: true

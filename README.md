@@ -129,7 +129,7 @@ The user can trend any metrics exposed in NeoLoad report.xml.
 The user will specify the XPath query required to collect the KPI from NeoLoad report.xml.
 
 ## Copyright
-<a href="copyright.txt">See here</a>
+<a href="copyright">See here</a>
 
 ## References
 

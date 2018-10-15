@@ -29,6 +29,12 @@ dependencies {
     testCompile group: 'com.xebialabs.gradle.plugins', name: 'xl-test-api', version: '0.0.6'
 }
 
+jar {
+    from {
+        configurations.compile.filter({(it.name =~ /password-scrambler-portable.*/ )}).collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 if (!project.hasProperty('release.scope')) {
   project.ext['release.scope'] = 'patch'
 }

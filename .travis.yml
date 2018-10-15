@@ -1,12 +1,15 @@
 language: java
 sudo: false
 deploy:
-    provider: releases
-    api_key:
-        secure: TH8AyyzMUv8Hqu47quvoBjK0RQf41xtvsed3otUvEV0lJSAiqqogiOZVqerD2utghVPfhEGKUwzOZbwLAViElOqf7U0J6onFIwa3NGWteP9vIvtgIEUeJD7kuAJu1v9Zc2euAjzLSwYifngWrxl04I9pZZNh7BgtcdmKbsHN5zQqGFZOFJITnFFuovMQJpFgbfBtBPL+jygmSplTuaLSFjd5nW9S6GQp+DHKC6oCNIAfvAp7vNQU5CLhp6+FEgu+my8flfnFIaEDs4LTvDujWZ95u0ls/RMmZ3+x3BGPGy/D0P698uRjl0ONRcK3SBNCcIfpzJSR8EdXm+tm7oR44YMOVmQAthS1zVtE1GVRhNZCJeZ0KCBZc+RCJ8NfggjOr3372ZpAHmGDmV91PC+OqbREVgtKs3JGlxQwLpPtJ+Il0sMir+B4RoM2Kc8KzNCEI6I49XGeoTprM0sbvw7TaVhplji0YmofL5KYm39XdTsMbCq4GkLM/Chr+5tCzEc4W1JxT+38kJLMlVS44w+kDPqTBw+msLqthJd6YDZpnBy+nm9rw098MfC2aNNfO063/RQgovUxuyVZ5n28/Am8KzhJ0UDdDtdI9KBDgH6+XW/4iErSDPWltxIuFdPZSxJSr13yeCbPhgJ2BqxJcMBd+E/+wmWxj2Y/wu51AHa4vEo=
-    file: build/libs/xlr-neotys-plugin-1.2.0.jar
-    skip_cleanup: true
-    on:
-        all_branches: true
-        tags: true
-        repo: xebialabs-community/xlr-neotys-plugin
+  provider: releases
+  api_key:
+    secure: TH8AyyzMUv8Hqu47quvoBjK0RQf41xtvsed3otUvEV0lJSAiqqogiOZVqerD2utghVPfhEGKUwzOZbwLAViElOqf7U0J6onFIwa3NGWteP9vIvtgIEUeJD7kuAJu1v9Zc2euAjzLSwYifngWrxl04I9pZZNh7BgtcdmKbsHN5zQqGFZOFJITnFFuovMQJpFgbfBtBPL+jygmSplTuaLSFjd5nW9S6GQp+DHKC6oCNIAfvAp7vNQU5CLhp6+FEgu+my8flfnFIaEDs4LTvDujWZ95u0ls/RMmZ3+x3BGPGy/D0P698uRjl0ONRcK3SBNCcIfpzJSR8EdXm+tm7oR44YMOVmQAthS1zVtE1GVRhNZCJeZ0KCBZc+RCJ8NfggjOr3372ZpAHmGDmV91PC+OqbREVgtKs3JGlxQwLpPtJ+Il0sMir+B4RoM2Kc8KzNCEI6I49XGeoTprM0sbvw7TaVhplji0YmofL5KYm39XdTsMbCq4GkLM/Chr+5tCzEc4W1JxT+38kJLMlVS44w+kDPqTBw+msLqthJd6YDZpnBy+nm9rw098MfC2aNNfO063/RQgovUxuyVZ5n28/Am8KzhJ0UDdDtdI9KBDgH6+XW/4iErSDPWltxIuFdPZSxJSr13yeCbPhgJ2BqxJcMBd+E/+wmWxj2Y/wu51AHa4vEo=
+  file: build/libs/xlr-neotys-plugin-1.2.0.jar
+  skip_cleanup: true
+  on:
+    all_branches: true
+    tags: true
+    repo: xebialabs-community/xlr-neotys-plugin
+notifications:
+  slack:
+    secure: K6n88mgvUeAN7wlgXY0xTK7dt84wDkZuwNy85Zeu+Mg7C3hk8QLQm0GeS5IAKSReUXDEm0ncJiJW8QZQBgopV0CSR/SvI2SPTgVh28zxHGVzMQJYBYQ7wlOhHpinCl0NPzMBsPaoHow3IEftevEZyzY9ITOSu/oOo9wMO3ddkWXFxrkuo2HVB1pbNmWUVd7nBlDCU1tIX5hjNy6aSKFz5RFKm3f0jAaWQJvjEocBgvLtv7G1OCupCiSEQ48/QT5NBF5iToCP3uhkA9NBsqXmidxnn80dSpjxy8gEE2nfgQtlIL0YwHvKO6oWp+YmX3Pp7dGugdQJDoE2NYBDLOIVKR/ofrWw0fCL22t9Gpeh6qo/fFcZN4A/at41hAK4vS674tWIFabcQtEfyWbpcrU04KHY47bSLFi4OyMD14U9ZDN8pzBFiKLvId+t+Rl2huGLun9wellps2C9m7cPXiqvhYvzo1GOTEUu6Zz31LGZ88KqmTFWFA9g44tFMnKABJa4eYyMrCHM6s2862u80Zh5X67LjjV0/AP0/e+qN6Hqs5BrYREYcBdoinerIg5m533E88vm4aSsDnP+CCI2AmSkOqK7vig91zIx1DokY3Et2r6kPrdjhchUQvOzJW4sE3iEJdVBtXN+esHq1uP2U+5ev8LGFqEgIcPme8e84XyICUY=
